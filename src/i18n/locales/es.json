@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "store": "Tienda",
+    "checkout": "Checkout",
+    "admin": "Admin"
+  },
+  "locale": {
+    "switchTo": "Cambiar idioma",
+    "es": "ES",
+    "en": "EN"
+  },
+  "storefront": {
+    "title": "Catálogo",
+    "subtitle": "Selecciona productos y agrégalos al pedido",
+    "addToOrder": "Agregar al pedido",
+    "quantity": "Cantidad"
+  },
+  "cart": {
+    "title": "Tu pedido",
+    "empty": "Aún no hay productos",
+    "total": "Total",
+    "checkout": "Ir al checkout",
+    "remove": "Quitar"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Datos de contacto",
+    "name": "Nombre",
+    "phone": "Teléfono",
+    "phonePlaceholder": "+1 849 620 2020",
+    "phoneHint": "Incluye código de país, ej. +1 849 620 2020",
+    "email": "Correo electrónico",
+    "submit": "Finalizar pedido",
+    "orderSummary": "Resumen del pedido"
+  },
+  "payment": {
+    "title": "Pago por transferencia",
+    "subtitle": "Realiza la transferencia y envía tu comprobante",
+    "bankDetails": "Datos bancarios",
+    "bankName": "Banco",
+    "accountName": "Titular",
+    "accountNumber": "Número de cuenta",
+    "accountType": "Tipo de cuenta",
+    "reference": "Referencia",
+    "total": "Total a transferir",
+    "orderNumber": "Pedido #{{displayId}}",
+    "leaveHint": "Puedes salir a tu app bancaria. Guarda este enlace o revisa tu correo para volver.",
+    "uploadProof": "Subir comprobante",
+    "uploadHint": "PNG o JPEG, captura de pantalla de tu banco",
+    "whatsappProof": "Enviar comprobante por WhatsApp",
+    "proofUploaded": "Comprobante enviado",
+    "resumeBanner": "Tienes un pedido pendiente de comprobante",
+    "resumeCta": "Continuar pago"
+  },
+  "orderStatus": {
+    "payment_confirmation_pending": "Confirmación de pago pendiente",
+    "confirmed": "Confirmado",
+    "in_production": "En producción",
+    "delivered": "Entregado",
+    "cancelled": "Cancelado"
+  },
+  "admin": {
+    "title": "Panel de administración",
+    "subtitle": "Pedidos y estados",
+    "login": "Iniciar sesión",
+    "password": "Contraseña",
+    "orders": "Pedidos",
+    "noProof": "Sin comprobante",
+    "proofWhatsApp": "Cliente por WhatsApp",
+    "confirmPayment": "Confirmar pago",
+    "logout": "Cerrar sesión",
+    "date": "Fecha",
+    "orderId": "Pedido",
+    "buyer": "Cliente",
+    "total": "Total",
+    "status": "Estado",
+    "proof": "Comprobante",
+    "viewProof": "Ver comprobante",
+    "noOrders": "No hay pedidos todavía"
+  },
+  "common": {
+    "loading": "Cargando…",
+    "error": "Algo salió mal",
+    "continueShopping": "Seguir comprando",
+    "notFound": "Página no encontrada"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "emailInvalid": "Correo inválido",
+    "phoneInvalid": "Número de teléfono inválido",
+    "cartEmpty": "Agrega productos al pedido"
+  },
+  "errors": {
+    "rateLimit": "Demasiados intentos. Espera unos minutos e intenta de nuevo."
+  }
+}

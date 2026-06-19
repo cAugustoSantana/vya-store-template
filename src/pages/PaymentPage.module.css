@@ -1,0 +1,57 @@
+.bankGrid {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.bankRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.bankLabel {
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+
+.bankValue {
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin: 1rem 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.items {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+}
+
+.proofDone {
+  padding: 0.75rem 1rem;
+  background: #ecfdf5;
+  border: 1px solid #6ee7b7;
+  border-radius: 0.5rem;
+  color: #047857;
+  font-weight: 600;
+}

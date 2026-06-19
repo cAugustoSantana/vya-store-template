@@ -1,0 +1,22 @@
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.link {
+  font-weight: 600;
+  color: var(--color-primary, #2563eb);
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}

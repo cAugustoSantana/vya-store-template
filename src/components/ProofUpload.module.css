@@ -1,0 +1,22 @@
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input {
+  font-size: 0.875rem;
+}
+
+.preview {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  margin: 0;
+}

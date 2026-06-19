@@ -1,0 +1,10 @@
+.products {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

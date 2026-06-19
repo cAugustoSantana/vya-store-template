@@ -1,0 +1,84 @@
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th,
+.table td {
+  padding: 0.625rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  vertical-align: top;
+}
+
+.table th {
+  font-weight: 600;
+  background: #f9fafb;
+}
+
+.statusSelect {
+  padding: 0.375rem 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+}
+
+.proofBtn {
+  background: none;
+  border: none;
+  color: var(--color-primary, #2563eb);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.proofImg {
+  max-width: 100%;
+  max-height: 400px;
+  margin-top: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.confirmBtn {
+  margin-top: 0.5rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.8125rem;
+  border: none;
+  border-radius: 0.375rem;
+  background: #10b981;
+  color: #fff;
+  cursor: pointer;
+}
+
+.loginForm {
+  max-width: 320px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.logoutBtn {
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.empty {
+  color: #6b7280;
+}

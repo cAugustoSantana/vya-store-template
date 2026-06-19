@@ -1,0 +1,96 @@
+{
+  "nav": {
+    "store": "Store",
+    "checkout": "Checkout",
+    "admin": "Admin"
+  },
+  "locale": {
+    "switchTo": "Change language",
+    "es": "ES",
+    "en": "EN"
+  },
+  "storefront": {
+    "title": "Catalog",
+    "subtitle": "Select products and add them to your order",
+    "addToOrder": "Add to order",
+    "quantity": "Quantity"
+  },
+  "cart": {
+    "title": "Your order",
+    "empty": "No products yet",
+    "total": "Total",
+    "checkout": "Go to checkout",
+    "remove": "Remove"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Contact details",
+    "name": "Name",
+    "phone": "Phone",
+    "phonePlaceholder": "+1 849 620 2020",
+    "phoneHint": "Include country code, e.g. +1 849 620 2020",
+    "email": "Email",
+    "submit": "Place order",
+    "orderSummary": "Order summary"
+  },
+  "payment": {
+    "title": "Bank transfer payment",
+    "subtitle": "Complete the transfer and send your proof",
+    "bankDetails": "Bank details",
+    "bankName": "Bank",
+    "accountName": "Account holder",
+    "accountNumber": "Account number",
+    "accountType": "Account type",
+    "reference": "Reference",
+    "total": "Total to transfer",
+    "orderNumber": "Order #{{displayId}}",
+    "leaveHint": "You can leave for your banking app. Save this link or check your email to return.",
+    "uploadProof": "Upload proof",
+    "uploadHint": "PNG or JPEG, screenshot from your bank",
+    "whatsappProof": "Send proof via WhatsApp",
+    "proofUploaded": "Proof submitted",
+    "resumeBanner": "You have an order awaiting payment proof",
+    "resumeCta": "Continue payment"
+  },
+  "orderStatus": {
+    "payment_confirmation_pending": "Payment confirmation pending",
+    "confirmed": "Confirmed",
+    "in_production": "In production",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled"
+  },
+  "admin": {
+    "title": "Admin panel",
+    "subtitle": "Orders and statuses",
+    "login": "Log in",
+    "password": "Password",
+    "orders": "Orders",
+    "noProof": "No proof",
+    "proofWhatsApp": "Customer via WhatsApp",
+    "confirmPayment": "Confirm payment",
+    "logout": "Log out",
+    "date": "Date",
+    "orderId": "Order",
+    "buyer": "Customer",
+    "total": "Total",
+    "status": "Status",
+    "proof": "Proof",
+    "viewProof": "View proof",
+    "noOrders": "No orders yet"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "continueShopping": "Continue shopping",
+    "notFound": "Page not found"
+  },
+  "validation": {
+    "required": "This field is required",
+    "emailInvalid": "Invalid email",
+    "phoneInvalid": "Invalid phone number",
+    "cartEmpty": "Add products to your order"
+  },
+  "errors": {
+    "rateLimit": "Too many attempts. Wait a few minutes and try again."
+  }
+}
