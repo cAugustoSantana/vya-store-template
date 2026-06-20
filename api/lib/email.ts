@@ -128,7 +128,7 @@ export async function sendProofUploadedEmail(order: OrderRow) {
 export function getBankTransferDetails(locale: Locale, config: StoreSettingsData) {
   const bt = config.payment.bankTransfer;
   return {
-    bankName: localizedField(bt.bankName, locale, config),
+    bankName: bt.bankName,
     accountName: bt.accountName,
     accountNumber: bt.accountNumber,
     accountType: localizedField(bt.accountType, locale, config),

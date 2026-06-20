@@ -30,7 +30,7 @@ export const storeConfig = {
   payment: {
     provider: "bank_transfer_proof" as PaymentProvider,
     bankTransfer: {
-      bankName: { es: "Banco Popular", en: "Banco Popular" },
+      bankName: "Banco Popular",
       accountName: "Mi Tienda SRL",
       accountNumber: "1234567890",
       accountType: { es: "Ahorros", en: "Savings" },

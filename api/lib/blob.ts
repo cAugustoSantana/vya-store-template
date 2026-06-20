@@ -48,6 +48,23 @@ export async function uploadProductImage(params: {
   return blob.url;
 }
 
+export async function uploadStoreLogo(params: {
+  buffer: Buffer;
+  contentType: "image/png" | "image/jpeg";
+}): Promise<string> {
+  const ext = params.contentType === "image/png" ? "png" : "jpg";
+  const pathname = `store/logo/${Date.now()}.${ext}`;
+
+  const blob = await put(pathname, params.buffer, {
+    access: "public",
+    addRandomSuffix: true,
+    contentType: params.contentType,
+    token: getBlobToken(),
+  });
+
+  return blob.url;
+}
+
 export async function fetchProofImage(
   url: string,
 ): Promise<{ buffer: Buffer; contentType: string }> {

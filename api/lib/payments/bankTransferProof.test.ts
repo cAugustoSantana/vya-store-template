@@ -16,7 +16,7 @@ describe("bankTransferProof", () => {
     expect(instructions.bankTransfer.bankName).toBeTruthy();
   });
 
-  it("localizes bank name by locale", async () => {
+  it("localizes account type by locale", async () => {
     const es = await getPaymentInstructions("es");
     const en = await getPaymentInstructions("en");
     expect(es.bankTransfer.accountType).not.toBe(en.bankTransfer.accountType);

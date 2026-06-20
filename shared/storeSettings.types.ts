@@ -23,7 +23,7 @@ export type StoreSettingsData = {
   payment: {
     provider: PaymentProvider;
     bankTransfer: {
-      bankName: LocalizedStoreField;
+      bankName: string;
       accountName: string;
       accountNumber: string;
       accountType: LocalizedStoreField;

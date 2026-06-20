@@ -38,6 +38,17 @@ function mergeLocalized(
   };
 }
 
+function mergeStringOrLocalized(
+  base: string,
+  patch: string | Partial<Record<Locale, string>> | undefined,
+): string {
+  if (typeof patch === "string" && patch.trim()) return patch.trim();
+  if (patch && typeof patch === "object") {
+    return patch.es?.trim() || patch.en?.trim() || base;
+  }
+  return base;
+}
+
 export function mergeStoreSettings(
   stored: Partial<StoreSettingsData> | null | undefined,
 ): StoreSettingsData {
@@ -81,7 +92,13 @@ export function mergeStoreSettings(
     payment: {
       provider: base.payment.provider,
       bankTransfer: {
-        bankName: mergeLocalized(base.payment.bankTransfer.bankName, stored.payment?.bankTransfer?.bankName),
+        bankName: mergeStringOrLocalized(
+          base.payment.bankTransfer.bankName,
+          stored.payment?.bankTransfer?.bankName as
+            | string
+            | Partial<Record<Locale, string>>
+            | undefined,
+        ),
         accountName:
           stored.payment?.bankTransfer?.accountName?.trim() ||
           base.payment.bankTransfer.accountName,

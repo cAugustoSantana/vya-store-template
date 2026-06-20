@@ -1,7 +1,7 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState, type FormEvent } from "react";
-import { fetchAdminSettings, updateAdminSettings } from "@/lib/api";
+import { fetchAdminSettings, updateAdminSettings, uploadAdminStoreLogo } from "@/lib/api";
 import type { StoreSettingsData } from "@shared/storeSettings.types";
 import type { Locale } from "@shared/types";
 import shared from "@/styles/shared.module.css";
@@ -10,6 +10,18 @@ import formStyles from "./AdminProductFormPage.module.css";
 type AdminOutletContext = { token: string };
 
 const LOCALES: Locale[] = ["es", "en"];
+
+async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      resolve({ base64: result, mimeType: file.type });
+    };
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
 
 function settingsToForm(settings: StoreSettingsData) {
   return {
@@ -30,8 +42,7 @@ function settingsToForm(settings: StoreSettingsData) {
     whatsappCountryCode: settings.contact.whatsappCountryCode,
     whatsappNumber: settings.contact.whatsappNumber,
     instagramUrl: settings.contact.instagramUrl,
-    bankNameEs: settings.payment.bankTransfer.bankName.es,
-    bankNameEn: settings.payment.bankTransfer.bankName.en,
+    bankName: settings.payment.bankTransfer.bankName,
     accountName: settings.payment.bankTransfer.accountName,
     accountNumber: settings.payment.bankTransfer.accountNumber,
     accountTypeEs: settings.payment.bankTransfer.accountType.es,
@@ -69,7 +80,7 @@ function formToSettings(form: FormState): StoreSettingsData {
     payment: {
       provider: "bank_transfer_proof",
       bankTransfer: {
-        bankName: { es: form.bankNameEs.trim(), en: form.bankNameEn.trim() },
+        bankName: form.bankName.trim(),
         accountName: form.accountName.trim(),
         accountNumber: form.accountNumber.trim(),
         accountType: { es: form.accountTypeEs.trim(), en: form.accountTypeEn.trim() },
@@ -107,6 +118,8 @@ export function AdminSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [form, setForm] = useState<FormState | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,6 +130,8 @@ export function AdminSettingsPage() {
         const data = await fetchAdminSettings(token);
         if (cancelled) return;
         setForm(settingsToForm(data.settings));
+        setLogoPreview(data.settings.logoUrl);
+        setLogoFile(null);
         setSavedAt(data.updatedAt);
       } catch (err) {
         if (!cancelled) setError(err instanceof Error ? err.message : "error");
@@ -139,8 +154,16 @@ export function AdminSettingsPage() {
     setSaving(true);
     setError(null);
     try {
-      const result = await updateAdminSettings(token, formToSettings(form));
+      let result = await updateAdminSettings(token, formToSettings(form));
+
+      if (logoFile) {
+        const { base64, mimeType } = await fileToBase64(logoFile);
+        result = await uploadAdminStoreLogo(token, base64, mimeType);
+        setLogoFile(null);
+      }
+
       setForm(settingsToForm(result.settings));
+      setLogoPreview(result.settings.logoUrl);
       setSavedAt(result.updatedAt);
     } catch (err) {
       setError(err instanceof Error ? err.message : "error");
@@ -256,12 +279,20 @@ export function AdminSettingsPage() {
             </div>
           </div>
           <div className={shared.field}>
-            <label htmlFor="settings-logo">{t("admin.settings.logoUrl")}</label>
+            <label htmlFor="settings-logo">{t("admin.settings.logo")}</label>
             <input
               id="settings-logo"
-              value={form.logoUrl}
-              onChange={(e) => updateField("logoUrl", e.target.value)}
+              type="file"
+              accept="image/png,image/jpeg"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setLogoFile(file);
+                setLogoPreview(file ? URL.createObjectURL(file) : form.logoUrl);
+              }}
             />
+            {logoPreview && (
+              <img src={logoPreview} alt="" className={formStyles.preview} />
+            )}
           </div>
         </Section>
 
@@ -330,23 +361,13 @@ export function AdminSettingsPage() {
         </Section>
 
         <Section title={t("admin.settings.bankSection")}>
-          <div className={formStyles.twoCol}>
-            <div className={shared.field}>
-              <label htmlFor="settings-bank-es">{t("admin.settings.bankNameEs")}</label>
-              <input
-                id="settings-bank-es"
-                value={form.bankNameEs}
-                onChange={(e) => updateField("bankNameEs", e.target.value)}
-              />
-            </div>
-            <div className={shared.field}>
-              <label htmlFor="settings-bank-en">{t("admin.settings.bankNameEn")}</label>
-              <input
-                id="settings-bank-en"
-                value={form.bankNameEn}
-                onChange={(e) => updateField("bankNameEn", e.target.value)}
-              />
-            </div>
+          <div className={shared.field}>
+            <label htmlFor="settings-bank">{t("admin.settings.bankName")}</label>
+            <input
+              id="settings-bank"
+              value={form.bankName}
+              onChange={(e) => updateField("bankName", e.target.value)}
+            />
           </div>
           <div className={shared.field}>
             <label htmlFor="settings-account-name">{t("admin.settings.accountName")}</label>

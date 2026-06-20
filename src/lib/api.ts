@@ -182,3 +182,23 @@ export async function updateAdminSettings(token: string, settings: unknown) {
     updatedAt: string | null;
   }>(res);
 }
+
+export async function uploadAdminStoreLogo(
+  token: string,
+  imageBase64: string,
+  mimeType: string,
+) {
+  const res = await fetch(`${API_BASE}/admin/settings/logo`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ imageBase64, mimeType }),
+  });
+  return parseJson<{
+    settings: import("@shared/storeSettings.types").StoreSettingsData;
+    logoUrl: string;
+    updatedAt: string | null;
+  }>(res);
+}
