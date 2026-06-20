@@ -14,26 +14,26 @@ export function StorefrontPage() {
   const { isDrawerOpen } = useCart();
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
       <StorefrontHeader showAdminNav />
       <PendingOrderBanner />
 
       <main
-        className={`mx-auto w-full max-w-[1440px] flex-grow px-6 py-10 lg:px-10 lg:py-14 ${
+        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4 ${
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
-        <div className="mb-8 lg:mb-10">
-          <h1 className="mb-2 text-3xl font-extrabold tracking-tight text-gray-900 lg:text-4xl">
+        <div className="mb-4 shrink-0 lg:mb-3">
+          <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-gray-900 lg:text-3xl">
             {t("storefront.title")}
           </h1>
-          <p className="text-base text-gray-500 lg:text-lg">{t("storefront.subtitle")}</p>
+          <p className="text-sm text-gray-500 lg:text-base">{t("storefront.subtitle")}</p>
         </div>
 
         {loading && <p className="text-gray-500">{t("common.loading")}</p>}
         {error && <p className="font-medium text-red-600">{error}</p>}
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:gap-8">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5 lg:content-start lg:overflow-y-auto">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} locale={locale} />
           ))}

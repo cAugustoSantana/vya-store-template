@@ -17,19 +17,23 @@ export function ProductCard({ product, locale }: Props) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md lg:max-h-[calc(100dvh-12rem)]"
     >
-      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-gray-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-6">
+      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-gray-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 lg:aspect-auto lg:min-h-0 lg:flex-1 lg:p-3">
         <img
           src={product.imageUrl}
           alt={name}
           className="relative z-10 max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
         />
       </div>
-      <div className="flex flex-grow flex-col p-6">
-        <h2 className="mb-1 text-xl font-bold text-gray-900 group-hover:text-brand-600">{name}</h2>
-        <p className="text-2xl font-extrabold text-gray-900">{formatMoney(product.price, locale)}</p>
-        <span className="mt-4 text-sm font-semibold text-brand-600 group-hover:underline">
+      <div className="flex shrink-0 flex-col p-4 lg:p-5">
+        <h2 className="mb-0.5 text-lg font-bold text-gray-900 group-hover:text-brand-600 lg:text-xl">
+          {name}
+        </h2>
+        <p className="text-xl font-extrabold text-gray-900 lg:text-2xl">
+          {formatMoney(product.price, locale)}
+        </p>
+        <span className="mt-2 text-sm font-semibold text-brand-600 group-hover:underline lg:mt-3">
           {t("productDetail.viewProduct")} →
         </span>
       </div>

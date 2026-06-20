@@ -153,9 +153,9 @@ export function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
-      <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50">
-        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-10">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
+      <header className="sticky top-0 z-50 shrink-0 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50">
+        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6 lg:px-10">
           <Link to="/" className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/20">
               <span className="text-lg font-extrabold">S</span>
@@ -202,33 +202,33 @@ export function CheckoutPage() {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[1440px] px-6 py-10 lg:px-10 lg:py-14">
-        <div className="mb-10">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4">
+        <div className="mb-4 shrink-0 lg:mb-3">
           <Link
             to="/"
-            className="mb-4 inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:underline"
+            className="mb-2 inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:underline lg:mb-1"
           >
             <span aria-hidden>←</span>
             {t("common.continueShopping")}
           </Link>
-          <h2 className="mb-2 text-3xl font-extrabold tracking-tight text-gray-900 lg:text-4xl">
+          <h2 className="mb-1 text-2xl font-extrabold tracking-tight text-gray-900 lg:text-3xl">
             {t("checkout.title")}
           </h2>
-          <p className="text-base text-gray-500 lg:text-lg">{t("checkout.subtitle")}</p>
+          <p className="text-sm text-gray-500 lg:text-base">{t("checkout.subtitle")}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-10 xl:gap-14 lg:grid-cols-12">
-          <div className="space-y-8 lg:col-span-7">
-            <section className="rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-              <h3 className="mb-6 flex items-center gap-3 text-xl font-bold text-gray-900">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-50 text-sm text-brand-600">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-7 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
+            <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:p-6">
+              <h3 className="mb-4 flex items-center gap-3 text-lg font-bold text-gray-900 lg:mb-3">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-50 text-xs text-brand-600">
                   1
                 </span>
                 {t("checkout.subtitle")}
               </h3>
 
-              <form onSubmit={(e) => void handleSubmit(e)} noValidate className="space-y-5">
-                <div className="space-y-1.5">
+              <form onSubmit={(e) => void handleSubmit(e)} noValidate className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-x-4 lg:gap-y-3 lg:space-y-0">
+                <div className="space-y-1 lg:col-span-1">
                   <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-name">
                     {t("checkout.name")}
                   </label>
@@ -236,14 +236,14 @@ export function CheckoutPage() {
                     id="checkout-name"
                     type="text"
                     autoComplete="name"
-                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                     value={values.name}
                     onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
                   />
                   {errors.name && <p className="text-sm font-medium text-red-600">{errors.name}</p>}
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1 lg:col-span-1">
                   <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-phone">
                     {t("checkout.phone")}
                   </label>
@@ -252,15 +252,15 @@ export function CheckoutPage() {
                     type="tel"
                     autoComplete="tel"
                     placeholder={t("checkout.phonePlaceholder")}
-                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                     value={values.phone}
                     onChange={(e) => setValues((v) => ({ ...v, phone: e.target.value }))}
                   />
-                  <p className="text-xs font-medium text-gray-500">{t("checkout.phoneHint")}</p>
+                  <p className="text-xs font-medium text-gray-500 lg:hidden">{t("checkout.phoneHint")}</p>
                   {errors.phone && <p className="text-sm font-medium text-red-600">{errors.phone}</p>}
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1 lg:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-email">
                     {t("checkout.email")}
                   </label>
@@ -268,49 +268,49 @@ export function CheckoutPage() {
                     id="checkout-email"
                     type="email"
                     autoComplete="email"
-                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                     value={values.email}
                     onChange={(e) => setValues((v) => ({ ...v, email: e.target.value }))}
                   />
                   {errors.email && <p className="text-sm font-medium text-red-600">{errors.email}</p>}
                 </div>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1 lg:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-address">
                     {t("checkout.address")}
                   </label>
                   <input
                     id="checkout-address"
                     type="text"
-                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                    className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                     value={values.address}
                     onChange={(e) => setValues((v) => ({ ...v, address: e.target.value }))}
                   />
                   {errors.address && <p className="text-sm font-medium text-red-600">{errors.address}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
-                  <div className="space-y-1.5">
+                <div className="grid grid-cols-1 gap-3 lg:col-span-2 lg:grid-cols-2 lg:gap-4">
+                  <div className="space-y-1">
                     <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-city">
                       {t("checkout.city")}
                     </label>
                     <input
                       id="checkout-city"
                       type="text"
-                      className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                      className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                       value={values.city}
                       onChange={(e) => setValues((v) => ({ ...v, city: e.target.value }))}
                     />
                     {errors.city && <p className="text-sm font-medium text-red-600">{errors.city}</p>}
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <label className="block text-sm font-semibold text-gray-700" htmlFor="checkout-postal">
                       {t("checkout.postalCode")}
                     </label>
                     <input
                       id="checkout-postal"
                       type="text"
-                      className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3.5 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
+                      className="block w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-sm text-gray-900 outline-none transition-shadow focus:border-brand-500 focus:ring-2 focus:ring-brand-500"
                       value={values.postalCode}
                       onChange={(e) => setValues((v) => ({ ...v, postalCode: e.target.value }))}
                     />
@@ -330,12 +330,14 @@ export function CheckoutPage() {
                   />
                 </div>
 
-                {submitError && <p className="text-sm font-medium text-red-600">{submitError}</p>}
+                {submitError && (
+                  <p className="text-sm font-medium text-red-600 lg:col-span-2">{submitError}</p>
+                )}
 
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="mt-2 inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-brand-600 px-4 py-5 font-bold text-white shadow-lg shadow-brand-500/25 transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-60"
+                  className="mt-1 inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-brand-600 px-4 py-3.5 font-bold text-white shadow-lg shadow-brand-500/25 transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-60 lg:col-span-2"
                 >
                   {t("checkout.submit")}
                 </button>
@@ -343,16 +345,16 @@ export function CheckoutPage() {
             </section>
           </div>
 
-          <div className="lg:col-span-5">
-            <div className="sticky top-28 flex flex-col rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
-              <h3 className="mb-8 flex items-center justify-between border-b border-gray-100 pb-4 text-xl font-bold text-gray-900">
+          <div className="lg:col-span-5 lg:min-h-0">
+            <div className="flex max-h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-[4.5rem] lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto lg:p-6">
+              <h3 className="mb-4 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3 text-lg font-bold text-gray-900">
                 {t("checkout.orderSummary")}
                 <span className="text-sm font-medium text-gray-500">
                   {lines.length} {lines.length === 1 ? "item" : "items"}
                 </span>
               </h3>
 
-              <div className="mb-8 space-y-6">
+              <div className="mb-4 space-y-4">
                 {lines.map((line) => {
                   const product = getProduct(line.productId);
                   const name = product ? getLocalized(product.name, locale) : line.productId;
@@ -362,7 +364,7 @@ export function CheckoutPage() {
 
                   return (
                     <div key={line.lineId} className="flex gap-4">
-                      <div className="relative flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl border border-gray-200 bg-gray-50">
+                      <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-gray-50">
                         <span className="text-[10px] font-bold text-brand-600">
                           {name.slice(0, 10)}
                         </span>
@@ -389,7 +391,7 @@ export function CheckoutPage() {
                 })}
               </div>
 
-              <div className="mb-8 space-y-4 border-t border-gray-100 pt-6">
+              <div className="shrink-0 space-y-3 border-t border-gray-100 pt-4">
                 <div className="flex justify-between text-gray-500">
                   <span className="font-medium">Subtotal</span>
                   <span className="font-semibold">{formatMoney(total, locale)}</span>
@@ -398,9 +400,9 @@ export function CheckoutPage() {
                   <span className="font-medium">Shipping</span>
                   <span className="font-semibold text-green-600">Free</span>
                 </div>
-                <div className="flex justify-between border-t border-dashed border-gray-200 pt-2 text-lg">
+                <div className="flex justify-between border-t border-dashed border-gray-200 pt-2 text-base lg:text-lg">
                   <span className="font-bold text-gray-900">{t("cart.total")}</span>
-                  <span className="text-3xl font-black tracking-tight text-gray-900">
+                  <span className="text-2xl font-black tracking-tight text-gray-900 lg:text-3xl">
                     {formatMoney(total, locale)}
                   </span>
                 </div>

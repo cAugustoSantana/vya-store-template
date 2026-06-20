@@ -15,17 +15,17 @@ export function StorefrontHeader({ showCatalogNav = true, showAdminNav = false }
   const locale = i18n.language as Locale;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50 print:hidden">
-      <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-10">
-        <Link to="/" className="flex items-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/20">
+    <header className="sticky top-0 z-50 shrink-0 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50 print:hidden">
+      <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6 lg:h-[4.25rem] lg:px-10">
+        <Link to="/" className="flex items-center gap-3 lg:gap-4">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/20 lg:h-10 lg:w-10">
             <Storefront size={20} weight="fill" aria-hidden />
           </div>
           <div>
-            <div className="text-xl font-bold leading-tight tracking-tight text-gray-900">
+            <div className="text-lg font-bold leading-tight tracking-tight text-gray-900 lg:text-xl">
               {getLocalized(storeConfig.storeName, locale)}
             </div>
-            <div className="text-sm font-medium text-gray-500">
+            <div className="hidden text-sm font-medium text-gray-500 sm:block">
               {getLocalized(storeConfig.description, locale)}
             </div>
           </div>

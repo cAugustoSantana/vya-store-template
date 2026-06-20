@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,12 +18,11 @@ import {
 import { useProducts } from "@/context/ProductsContext";
 import { useCart } from "@/context/CartContext";
 import { StorefrontHeader } from "@/components/StorefrontHeader";
-import { StorefrontFooter } from "@/components/StorefrontFooter";
 import { CartDrawer } from "@/components/CartDrawer";
+import { SizeGuideDialog } from "@/components/SizeGuideDialog";
 import { getLocalized } from "@/lib/localized";
 import { formatMoney } from "@/lib/format";
 import {
-  SIZE_GUIDE_ROWS,
   colorSwatchClass,
   defaultVariants,
   isColorVariant,
@@ -37,7 +36,7 @@ export function ProductDetailPage() {
   const locale = i18n.language as Locale;
   const { getProduct, loading } = useProducts();
   const { addLine, isDrawerOpen } = useCart();
-  const sizeGuideRef = useRef<HTMLDivElement>(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const product = productId ? getProduct(productId) : undefined;
   const variantKeys = useMemo(
@@ -69,7 +68,6 @@ export function ProductDetailPage() {
   }, [product, variantKeys, variants]);
 
   const allSelected = variantKeys.every((k) => resolvedVariants[k]);
-  const hasSizeVariant = variantKeys.some(isSizeVariant);
 
   const selectedColorLabel = useMemo(() => {
     if (!product) return "";
@@ -79,6 +77,12 @@ export function ProductDetailPage() {
     const value = product.variantOptions[colorKey]?.values[valueKey];
     return value ? getLocalized(value, locale) : valueKey;
   }, [product, variantKeys, resolvedVariants, locale]);
+
+  const selectedSizeKey = useMemo(() => {
+    if (!product) return undefined;
+    const sizeKey = variantKeys.find(isSizeVariant);
+    return sizeKey ? resolvedVariants[sizeKey] : undefined;
+  }, [product, variantKeys, resolvedVariants]);
 
   if (loading) {
     return (
@@ -122,20 +126,16 @@ export function ProductDetailPage() {
   const decrementQty = () => setQuantity((q) => Math.max(1, q - 1));
   const incrementQty = () => setQuantity((q) => Math.min(99, q + 1));
 
-  const scrollToSizeGuide = () => {
-    sizeGuideRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
       <StorefrontHeader showAdminNav />
 
       <main
-        className={`mx-auto w-full max-w-[1440px] flex-grow px-6 py-8 lg:px-10 lg:py-12 ${
+        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4 ${
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
-        <div className="mb-8">
+        <div className="mb-3 shrink-0 lg:mb-2">
           <Link
             to="/"
             className="group inline-flex items-center gap-2 font-semibold text-gray-500 transition-colors hover:text-brand-600"
@@ -150,11 +150,12 @@ export function ProductDetailPage() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 xl:gap-20">
-          <div className="space-y-6 lg:col-span-7">
-            <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[32px] border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-12">
+        <div className="grid flex-1 grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-8 xl:gap-10">
+          <div className="flex flex-col gap-3 lg:col-span-7 lg:min-h-0 lg:max-h-full">
+            <div className="relative flex aspect-square min-h-0 flex-1 items-center justify-center overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 lg:aspect-auto lg:max-h-[calc(100dvh-9rem)] lg:p-6">
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.07]">
-                <TShirt size={480} weight="fill" className="text-brand-600" aria-hidden />
+                <TShirt size={320} weight="fill" className="text-brand-600 lg:hidden" aria-hidden />
+                <TShirt size={240} weight="fill" className="hidden text-brand-600 lg:block" aria-hidden />
               </div>
               {activeThumb === 0 ? (
                 <img
@@ -177,7 +178,7 @@ export function ProductDetailPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid shrink-0 grid-cols-4 gap-2 lg:gap-3">
               {[0, 1, 2, 3].map((index) => {
                 const active = activeThumb === index;
                 const icons = [
@@ -194,8 +195,8 @@ export function ProductDetailPage() {
                     onClick={() => setActiveThumb(index)}
                     className={
                       active
-                        ? "flex aspect-square cursor-pointer items-center justify-center rounded-2xl border-2 border-brand-500 bg-white p-4"
-                        : "flex aspect-square cursor-pointer items-center justify-center rounded-2xl border border-gray-200 bg-gray-50 p-4 transition-colors hover:border-brand-200"
+                        ? "flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-brand-500 bg-white p-2 lg:p-3"
+                        : "flex aspect-square cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-2 transition-colors hover:border-brand-200 lg:p-3"
                     }
                     aria-label={t("productDetail.thumbnail", { index: index + 1 })}
                     aria-pressed={active}
@@ -220,13 +221,13 @@ export function ProductDetailPage() {
             </div>
           </div>
 
-          <div className="space-y-10 lg:col-span-5">
+          <div className="space-y-5 lg:col-span-5 lg:min-h-0 lg:overflow-y-auto lg:pr-1 lg:space-y-4">
             <div>
-              <div className="mb-4 flex items-center gap-2">
-                <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-xs font-bold uppercase tracking-wider text-brand-600">
+              <div className="mb-3 flex items-center gap-2 lg:mb-2">
+                <span className="rounded-full border border-brand-100 bg-brand-50 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-600 lg:hidden">
                   {t("productDetail.newArrival")}
                 </span>
-                <div className="ml-auto flex items-center gap-1 text-amber-500">
+                <div className="ml-auto flex items-center gap-1 text-amber-500 lg:hidden">
                   {[1, 2, 3, 4].map((i) => (
                     <Star key={i} size={16} weight="fill" aria-hidden />
                   ))}
@@ -234,17 +235,17 @@ export function ProductDetailPage() {
                   <span className="ml-1 text-sm font-bold text-gray-500">(42)</span>
                 </div>
               </div>
-              <h1 className="mb-4 text-4xl font-black tracking-tight text-gray-900 lg:text-5xl">
+              <h1 className="mb-2 text-3xl font-black tracking-tight text-gray-900 lg:text-4xl">
                 {name}
               </h1>
-              <div className="text-3xl font-extrabold text-brand-600">
+              <div className="text-2xl font-extrabold text-brand-600 lg:text-3xl">
                 {formatMoney(product.price, locale)}
               </div>
             </div>
 
-            <div className="space-y-4">
-              <p className="leading-relaxed text-gray-600">{description}</p>
-              <ul className="space-y-2 text-sm text-gray-500">
+            <div className="space-y-3 lg:space-y-2">
+              <p className="line-clamp-2 text-sm leading-relaxed text-gray-600 lg:line-clamp-3">{description}</p>
+              <ul className="space-y-1.5 text-sm text-gray-500 lg:hidden">
                 <li className="flex items-center gap-2">
                   <Check size={16} weight="bold" className="text-brand-500" aria-hidden />
                   {t("productDetail.feature1")}
@@ -260,7 +261,7 @@ export function ProductDetailPage() {
               </ul>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 lg:space-y-3">
               {variantKeys.map((key) => {
                 const group = product.variantOptions[key];
                 const label = getLocalized(group.label, locale);
@@ -268,7 +269,7 @@ export function ProductDetailPage() {
                 if (isColorVariant(key)) {
                   return (
                     <div key={key}>
-                      <div className="mb-4 flex items-center justify-between">
+                      <div className="mb-3 flex items-center justify-between lg:mb-2">
                         <span className="text-sm font-bold uppercase tracking-wider text-gray-900">
                           {t("productDetail.selectColor")}
                         </span>
@@ -304,13 +305,13 @@ export function ProductDetailPage() {
                 if (isSizeVariant(key)) {
                   return (
                     <div key={key}>
-                      <div className="mb-4 flex items-center justify-between">
+                      <div className="mb-3 flex items-center justify-between lg:mb-2">
                         <span className="text-sm font-bold uppercase tracking-wider text-gray-900">
                           {t("productDetail.selectSize")}
                         </span>
                         <button
                           type="button"
-                          onClick={scrollToSizeGuide}
+                          onClick={() => setSizeGuideOpen(true)}
                           className="text-xs font-bold text-brand-600 underline underline-offset-4 hover:text-brand-700"
                         >
                           {t("productDetail.sizeGuide")}
@@ -330,8 +331,8 @@ export function ProductDetailPage() {
                               }
                               className={
                                 selected
-                                  ? "rounded-xl border-2 border-brand-600 bg-brand-50 px-4 py-3 font-bold text-brand-600 transition-all"
-                                  : "rounded-xl border border-gray-200 px-4 py-3 font-bold text-gray-700 transition-all hover:border-brand-500 hover:bg-brand-50"
+                                  ? "rounded-lg border-2 border-brand-600 bg-brand-50 px-3 py-2.5 font-bold text-brand-600 transition-all lg:py-2"
+                                  : "rounded-lg border border-gray-200 px-3 py-2.5 font-bold text-gray-700 transition-all hover:border-brand-500 hover:bg-brand-50 lg:py-2"
                               }
                             >
                               {display}
@@ -369,9 +370,9 @@ export function ProductDetailPage() {
                 );
               })}
 
-              <div className="space-y-4 border-t border-gray-100 pt-6">
-                <div className="flex gap-4">
-                  <div className="flex h-[56px] w-[140px] items-center rounded-xl border border-gray-200 bg-gray-50 p-1">
+              <div className="space-y-3 border-t border-gray-100 pt-4 lg:pt-3">
+                <div className="flex gap-3 lg:gap-4">
+                  <div className="flex h-12 w-[120px] items-center rounded-xl border border-gray-200 bg-gray-50 p-1 lg:h-11">
                     <button
                       type="button"
                       onClick={decrementQty}
@@ -404,14 +405,14 @@ export function ProductDetailPage() {
                     type="button"
                     disabled={!allSelected}
                     onClick={handleAdd}
-                    className="flex flex-1 items-center justify-center gap-3 rounded-xl bg-brand-600 px-6 py-4 font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-60"
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-brand-600 px-4 py-3.5 text-sm font-bold text-white shadow-lg shadow-brand-500/30 transition-all hover:bg-brand-700 active:scale-[0.98] disabled:opacity-60 lg:py-3"
                   >
                     <ShoppingCart size={20} weight="bold" aria-hidden />
                     {t("storefront.addToOrder")}
                   </button>
                 </div>
 
-                <div className="flex items-center justify-center gap-6 py-4">
+                <div className="flex items-center justify-center gap-4 py-1 lg:gap-6">
                   <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400">
                     <Truck size={18} weight="bold" className="text-gray-300" aria-hidden />
                     {t("productDetail.fastShipping")}
@@ -430,59 +431,13 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
-
-        {hasSizeVariant && (
-          <div ref={sizeGuideRef} className="mt-20 border-t border-gray-200 pt-16">
-            <h2 className="mb-8 text-2xl font-extrabold text-gray-900">
-              {t("productDetail.detailedSizeGuide")}
-            </h2>
-            <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white">
-              <table className="w-full border-collapse text-left">
-                <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="px-8 py-4 text-sm font-bold uppercase tracking-wider text-gray-500">
-                      {t("productDetail.sizeColumn")}
-                    </th>
-                    <th className="px-8 py-4 text-sm font-bold uppercase tracking-wider text-gray-500">
-                      {t("productDetail.chestColumn")}
-                    </th>
-                    <th className="px-8 py-4 text-sm font-bold uppercase tracking-wider text-gray-500">
-                      {t("productDetail.lengthColumn")}
-                    </th>
-                    <th className="px-8 py-4 text-sm font-bold uppercase tracking-wider text-gray-500">
-                      {t("productDetail.sleeveColumn")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {SIZE_GUIDE_ROWS.map((row, i) => {
-                    const sizeKey = row.size.toLowerCase();
-                    const isSelected = Object.entries(resolvedVariants).some(
-                      ([k, v]) => isSizeVariant(k) && v.toLowerCase() === sizeKey,
-                    );
-                    return (
-                      <tr key={row.size} className={i % 2 === 1 ? "bg-gray-50/30" : undefined}>
-                        <td
-                          className={`px-8 py-4 font-bold ${isSelected ? "text-brand-600" : "text-gray-900"}`}
-                        >
-                          {row.size}
-                        </td>
-                        <td className="px-8 py-4 text-gray-600">{row.chest}</td>
-                        <td className="px-8 py-4 text-gray-600">{row.length}</td>
-                        <td className="px-8 py-4 text-gray-600">{row.sleeve}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
       </main>
 
-      <div className={isDrawerOpen ? "pointer-events-none opacity-40" : ""}>
-        <StorefrontFooter />
-      </div>
+      <SizeGuideDialog
+        open={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        selectedSizeKey={selectedSizeKey}
+      />
       <CartDrawer />
     </div>
   );
