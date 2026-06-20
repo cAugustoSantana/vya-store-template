@@ -32,7 +32,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         locale: order.locale,
         paymentProofMethod: order.payment_proof_method,
         hasProof: Boolean(order.payment_proof_url),
-        proofUrl: order.payment_proof_url,
         items: order.items.map((item) => ({
           productId: item.product_id,
           productName: item.product_name,

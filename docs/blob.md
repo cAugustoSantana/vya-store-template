@@ -44,7 +44,7 @@ Example: `proofs/MITIENDA-a7164-1718380800000.jpg`
 
 - Blob URLs are stored in Postgres (`orders.payment_proof_url`)
 - **Public** blob URLs are not exposed to customers on the payment page
-- Admins fetch proof images via `GET /api/admin/proof/:orderId` (JWT required)
+- Admins fetch proof images via `GET /api/admin/proof/:orderId` (JWT required). The route streams the image bytes from Blob (works for private stores).
 
 ## Limits (app-side)
 

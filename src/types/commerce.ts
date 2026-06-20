@@ -59,7 +59,6 @@ export type AdminOrder = {
   locale: string;
   paymentProofMethod: string | null;
   hasProof: boolean;
-  proofUrl: string | null;
   items: {
     productId: string;
     productName: string;

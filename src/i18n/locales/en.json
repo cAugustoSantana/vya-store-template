@@ -77,6 +77,8 @@
     "status": "Status",
     "proof": "Proof",
     "viewProof": "View proof",
+    "hideProof": "Hide proof",
+    "proofLoadFailed": "Could not load proof image",
     "noOrders": "No orders yet"
   },
   "common": {

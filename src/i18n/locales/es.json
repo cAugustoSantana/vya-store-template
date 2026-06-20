@@ -77,6 +77,8 @@
     "status": "Estado",
     "proof": "Comprobante",
     "viewProof": "Ver comprobante",
+    "hideProof": "Ocultar comprobante",
+    "proofLoadFailed": "No se pudo cargar el comprobante",
     "noOrders": "No hay pedidos todavía"
   },
   "common": {

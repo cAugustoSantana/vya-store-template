@@ -21,8 +21,9 @@ function AdminProofViewer({
   const { t } = useTranslation();
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!order.hasProof || !order.proofUrl) {
+  if (!order.hasProof) {
     if (order.paymentProofMethod === "whatsapp") {
       return <span>{t("admin.proofWhatsApp")}</span>;
     }
@@ -30,7 +31,13 @@ function AdminProofViewer({
   }
 
   const loadProof = async () => {
-    if (url || loading) return;
+    if (loading) return;
+    if (url) {
+      URL.revokeObjectURL(url);
+      setUrl(null);
+      return;
+    }
+    setError(null);
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/proof/${order.id}`, {
@@ -38,9 +45,12 @@ function AdminProofViewer({
       });
       if (!res.ok) throw new Error("failed");
       const blob = await res.blob();
+      if (!blob.type.startsWith("image/")) {
+        throw new Error("invalid_response");
+      }
       setUrl(URL.createObjectURL(blob));
     } catch {
-      setUrl(null);
+      setError(t("admin.proofLoadFailed"));
     } finally {
       setLoading(false);
     }
@@ -49,8 +59,13 @@ function AdminProofViewer({
   return (
     <div>
       <button type="button" className={styles.proofBtn} onClick={() => void loadProof()}>
-        {loading ? t("common.loading") : t("admin.viewProof")}
+        {loading
+          ? t("common.loading")
+          : url
+            ? t("admin.hideProof")
+            : t("admin.viewProof")}
       </button>
+      {error && <p className={shared.error}>{error}</p>}
       {url && <img src={url} alt="" className={styles.proofImg} />}
     </div>
   );
