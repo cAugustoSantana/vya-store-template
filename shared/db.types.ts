@@ -16,6 +16,9 @@ export type OrderRow = {
   payment_proof_method: PaymentProofMethod | null;
   payment_proof_url: string | null;
   payment_verified_at: string | null;
+  shipping_address: string;
+  shipping_city: string;
+  shipping_postal_code: string;
 };
 
 export type OrderItemRow = {

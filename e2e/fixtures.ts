@@ -35,6 +35,9 @@ export async function fillCheckoutForm(
   await page.locator("#checkout-name").fill(data.name);
   await page.locator("#checkout-phone").fill(data.phone);
   await page.locator("#checkout-email").fill(data.email);
+  await page.locator("#checkout-address").fill("123 Street Name, Neighborhood");
+  await page.locator("#checkout-city").fill("Santo Domingo");
+  await page.locator("#checkout-postal").fill("10101");
   return data;
 }
 

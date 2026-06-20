@@ -127,6 +127,24 @@ export function AdminOrderDetailPage() {
           <CustomerCard buyer={order.buyer} />
 
           <div className={styles.card}>
+            <h2 className={styles.cardTitle}>{t("admin.shipping.title")}</h2>
+            <dl className={styles.detailList}>
+              <div>
+                <dt>{t("admin.shipping.address")}</dt>
+                <dd>{order.shipping.address}</dd>
+              </div>
+              <div>
+                <dt>{t("admin.shipping.city")}</dt>
+                <dd>{order.shipping.city}</dd>
+              </div>
+              <div>
+                <dt>{t("admin.shipping.postalCode")}</dt>
+                <dd>{order.shipping.postalCode}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div className={styles.card}>
             <h2 className={styles.cardTitle}>{t("admin.status")}</h2>
             <div className={styles.statusCard}>
               <StatusBadge status={order.estado} />

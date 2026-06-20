@@ -30,6 +30,9 @@
     "phonePlaceholder": "+1 849 620 2020",
     "phoneHint": "Include country code, e.g. +1 849 620 2020",
     "email": "Email",
+    "address": "Shipping address",
+    "city": "City",
+    "postalCode": "Postal code",
     "submit": "Place order",
     "orderSummary": "Order summary"
   },
@@ -141,6 +144,12 @@
       "proofWhatsApp": "Customer chose WhatsApp for proof",
       "paymentConfirmed": "Payment confirmed",
       "statusUpdated": "Status updated"
+    },
+    "shipping": {
+      "title": "Shipping",
+      "address": "Address",
+      "city": "City",
+      "postalCode": "Postal code"
     }
   },
   "common": {

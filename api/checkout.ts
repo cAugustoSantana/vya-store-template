@@ -20,6 +20,9 @@ function mapValidationError(err: unknown): { status: number; error: string } {
     "invalid_name",
     "invalid_email",
     "invalid_phone",
+    "invalid_shipping_address",
+    "invalid_shipping_city",
+    "invalid_shipping_postal_code",
     "empty_cart",
     "cart_too_large",
     "invalid_product",
@@ -54,6 +57,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const validated = await validateCheckout(body);
     const { order, items } = await createOrder({
       buyer: validated.buyer,
+      shipping: validated.shipping,
       locale: validated.locale,
       total: validated.total,
       lines: validated.lines,

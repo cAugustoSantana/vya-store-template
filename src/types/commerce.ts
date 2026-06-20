@@ -73,6 +73,7 @@ export type AdminOrderDetail = {
   displayId: string;
   createdAt: string;
   buyer: { name: string; phone: string; email: string };
+  shipping: { address: string; city: string; postalCode: string };
   estado: string;
   total: number;
   locale: string;

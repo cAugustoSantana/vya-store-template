@@ -21,6 +21,7 @@ export type ValidatedCartLine = {
 export type CheckoutInput = {
   locale: string;
   buyer: { name: string; phone: string; email: string };
+  shipping: { address: string; city: string; postalCode: string };
   items: CartLineInput[];
   honeypot?: string;
 };
@@ -88,6 +89,7 @@ export async function validateCheckout(
 ): Promise<{
   locale: Locale;
   buyer: { name: string; phone: string; email: string };
+  shipping: { address: string; city: string; postalCode: string };
   lines: ValidatedCartLine[];
   total: number;
 }> {
@@ -106,6 +108,14 @@ export async function validateCheckout(
   if (!name) throw new Error("invalid_name");
   if (!isValidEmail(email ?? "")) throw new Error("invalid_email");
   if (!isValidPhone(phoneDigits)) throw new Error("invalid_phone");
+
+  const address = input.shipping?.address?.trim();
+  const city = input.shipping?.city?.trim();
+  const postalCode = input.shipping?.postalCode?.trim();
+
+  if (!address) throw new Error("invalid_shipping_address");
+  if (!city) throw new Error("invalid_shipping_city");
+  if (!postalCode) throw new Error("invalid_shipping_postal_code");
 
   if (!Array.isArray(input.items) || input.items.length === 0) {
     throw new Error("empty_cart");
@@ -144,6 +154,7 @@ export async function validateCheckout(
   return {
     locale: input.locale,
     buyer: { name, phone: phoneDigits, email: email! },
+    shipping: { address, city, postalCode },
     lines,
     total,
   };

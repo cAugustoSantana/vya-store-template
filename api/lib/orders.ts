@@ -10,6 +10,7 @@ export function buildDisplayId(uuid: string): string {
 
 export async function createOrder(params: {
   buyer: { name: string; phone: string; email: string };
+  shipping: { address: string; city: string; postalCode: string };
   locale: string;
   total: number;
   lines: {
@@ -29,7 +30,8 @@ export async function createOrder(params: {
       const orderRows = (await sql`
         INSERT INTO orders (
           id, display_id, buyer_name, buyer_phone, buyer_email,
-          estado, total, locale, payment_provider
+          estado, total, locale, payment_provider,
+          shipping_address, shipping_city, shipping_postal_code
         ) VALUES (
           ${id}::uuid,
           ${displayId},
@@ -39,7 +41,10 @@ export async function createOrder(params: {
           ${storeConfig.defaultOrderStatus},
           ${params.total},
           ${params.locale},
-          ${storeConfig.payment.provider}
+          ${storeConfig.payment.provider},
+          ${params.shipping.address},
+          ${params.shipping.city},
+          ${params.shipping.postalCode}
         )
         RETURNING *
       `) as OrderRow[];

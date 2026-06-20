@@ -66,13 +66,14 @@ Expected: `prod-1`, `prod-2` when seed has been applied.
 |------|---------|
 | [`schema.sql`](./schema.sql) | Full schema for new branches |
 | [`migrations/002_products.sql`](./migrations/002_products.sql) | Add `products` table to existing branches |
+| [`migrations/003_orders_shipping.sql`](./migrations/003_orders_shipping.sql) | Add shipping fields to `orders` |
 | [`seed/products.sql`](./seed/products.sql) | Demo catalog (`prod-1`, `prod-2`) |
 
 Add numbered files under `db/migrations/` for future changes. Do not edit `schema.sql` in place after a branch has been initialized — add a migration instead.
 
 ## Row shape (reference)
 
-**orders:** `id`, `display_id`, `created_at`, `buyer_name`, `buyer_phone`, `buyer_email`, `estado`, `total`, `locale`, `payment_provider`, `payment_proof_method`, `payment_proof_url`, `payment_verified_at`
+**orders:** `id`, `display_id`, `created_at`, `buyer_name`, `buyer_phone`, `buyer_email`, `estado`, `total`, `locale`, `payment_provider`, `payment_proof_method`, `payment_proof_url`, `payment_verified_at`, `shipping_address`, `shipping_city`, `shipping_postal_code`
 
 **order_items:** `id`, `order_id`, `product_id`, `product_name`, `variants`, `quantity`, `unit_price`
 

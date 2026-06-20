@@ -59,12 +59,18 @@ export async function sendCheckoutEmails(params: {
       ? `<p>Hola ${params.order.buyer_name},</p>
          <p>Recibimos tu pedido <strong>${params.order.display_id}</strong>.</p>
          <p>Total: <strong>${total}</strong></p>
+         <p><strong>Envío:</strong><br/>
+         ${params.order.shipping_address}<br/>
+         ${params.order.shipping_city} — ${params.order.shipping_postal_code}</p>
          <ul>${list}</ul>
          <p>Realiza la transferencia y completa tu comprobante aquí:</p>
          <p><a href="${params.paymentPageUrl}">${params.paymentPageUrl}</a></p>`
       : `<p>Hi ${params.order.buyer_name},</p>
          <p>We received your order <strong>${params.order.display_id}</strong>.</p>
          <p>Total: <strong>${total}</strong></p>
+         <p><strong>Shipping:</strong><br/>
+         ${params.order.shipping_address}<br/>
+         ${params.order.shipping_city} — ${params.order.shipping_postal_code}</p>
          <ul>${list}</ul>
          <p>Complete your bank transfer and upload proof here:</p>
          <p><a href="${params.paymentPageUrl}">${params.paymentPageUrl}</a></p>`;
@@ -74,6 +80,7 @@ export async function sendCheckoutEmails(params: {
     <p>Buyer: ${params.order.buyer_name}<br/>
     Phone: ${params.order.buyer_phone}<br/>
     Email: ${params.order.buyer_email}</p>
+    <p>Shipping: ${params.order.shipping_address}, ${params.order.shipping_city}, ${params.order.shipping_postal_code}</p>
     <p>Total: ${total}</p>
     <ul>${list}</ul>
     <p>Status: payment confirmation pending</p>`;

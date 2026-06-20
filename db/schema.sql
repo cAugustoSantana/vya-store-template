@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS orders (
   ),
   payment_proof_url TEXT,
   payment_verified_at TIMESTAMPTZ,
+  shipping_address TEXT NOT NULL DEFAULT '',
+  shipping_city TEXT NOT NULL DEFAULT '',
+  shipping_postal_code TEXT NOT NULL DEFAULT '',
   CONSTRAINT orders_estado_not_empty CHECK (char_length(trim(estado)) > 0),
   CONSTRAINT orders_buyer_name_not_empty CHECK (char_length(trim(buyer_name)) > 0),
   CONSTRAINT orders_buyer_email_not_empty CHECK (char_length(trim(buyer_email)) > 0),
@@ -44,6 +47,9 @@ COMMENT ON COLUMN orders.buyer_phone IS 'Normalized digits only for WhatsApp lin
 COMMENT ON COLUMN orders.estado IS 'Canonical key e.g. payment_confirmation_pending, confirmed';
 COMMENT ON COLUMN orders.payment_proof_method IS 'upload | whatsapp | null until customer acts';
 COMMENT ON COLUMN orders.payment_proof_url IS 'Private Vercel Blob URL or path';
+COMMENT ON COLUMN orders.shipping_address IS 'Shipping street address (required at checkout)';
+COMMENT ON COLUMN orders.shipping_city IS 'Shipping city (required at checkout)';
+COMMENT ON COLUMN orders.shipping_postal_code IS 'Shipping postal code (required at checkout)';
 COMMENT ON COLUMN order_items.variants IS 'Canonical variant keys JSON e.g. {"size":"m","color":"black"}';
 COMMENT ON COLUMN order_items.product_name IS 'Snapshot of localized product name at checkout';
 

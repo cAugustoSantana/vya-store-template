@@ -15,6 +15,7 @@ export type AdminOrderDetail = {
   displayId: string;
   createdAt: string;
   buyer: { name: string; phone: string; email: string };
+  shipping: { address: string; city: string; postalCode: string };
   estado: string;
   total: number;
   locale: string;
@@ -51,13 +52,19 @@ export async function serializeAdminOrderDetail(order: OrderWithItems): Promise<
     }
   }
 
-  return {    id: order.id,
+  return {
+    id: order.id,
     displayId: order.display_id,
     createdAt: order.created_at,
     buyer: {
       name: order.buyer_name,
       phone: order.buyer_phone,
       email: order.buyer_email,
+    },
+    shipping: {
+      address: order.shipping_address,
+      city: order.shipping_city,
+      postalCode: order.shipping_postal_code,
     },
     estado: order.estado,
     total: Number(order.total),
@@ -72,6 +79,7 @@ export async function serializeAdminOrderDetail(order: OrderWithItems): Promise<
       quantity: item.quantity,
       unitPrice: Number(item.unit_price),
       imageUrl: imageUrls.get(item.product_id) ?? null,
-    })),    timeline: buildOrderTimeline(order),
+    })),
+    timeline: buildOrderTimeline(order),
   };
 }

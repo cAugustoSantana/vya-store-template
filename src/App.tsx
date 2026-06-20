@@ -20,13 +20,14 @@ import styles from "./App.module.css";
 function AppRoutes() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith("/admin");
+  const isCheckoutRoute = location.pathname === "/checkout";
 
   return (
     <div
       className={styles.app}
       style={{ ["--color-primary" as string]: storeConfig.primaryColor }}
     >
-      {!isAdminRoute && <Header />}
+      {!isAdminRoute && !isCheckoutRoute && <Header />}
       <main className={styles.main}>
         <Routes>
           <Route path="/" element={<StorefrontPage />} />

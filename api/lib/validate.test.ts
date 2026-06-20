@@ -47,6 +47,11 @@ const validCheckout = {
     phone: "+1 849 620 2020",
     email: "ana@example.com",
   },
+  shipping: {
+    address: "123 Street Name",
+    city: "Santo Domingo",
+    postalCode: "10101",
+  },
   items: [validItem],
   honeypot: "",
 };
@@ -93,6 +98,18 @@ describe("validateCheckout", () => {
     expect(result.total).toBe(3000);
     expect(result.buyer.phone).toBe("18496202020");
     expect(result.lines[0].productId).toBe("prod-1");
+  });
+
+  it("requires shipping fields", async () => {
+    await expect(
+      validateCheckout(
+        {
+          ...validCheckout,
+          shipping: { ...validCheckout.shipping, address: "" },
+        },
+        lookup,
+      ),
+    ).rejects.toThrow("invalid_shipping_address");
   });
 
   it("rejects filled honeypot", async () => {
