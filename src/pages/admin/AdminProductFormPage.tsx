@@ -7,13 +7,18 @@ import {
   updateAdminProduct,
   uploadAdminProductImage,
 } from "@/lib/api";
+import { VariantOptionsEditor } from "@/components/admin/VariantOptionsEditor";
+import {
+  draftsToVariantOptions,
+  validateVariantDrafts,
+  variantOptionsToDrafts,
+  type VariantGroupDraft,
+} from "@/lib/variantOptions";
 import type { Product } from "@shared/product.types";
 import shared from "@/styles/shared.module.css";
 import styles from "./AdminProductFormPage.module.css";
 
 type AdminOutletContext = { token: string };
-
-const EMPTY_VARIANTS = "{\n  \n}";
 
 async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
@@ -45,7 +50,7 @@ export function AdminProductFormPage() {
   const [price, setPrice] = useState("0");
   const [active, setActive] = useState(true);
   const [sortOrder, setSortOrder] = useState("0");
-  const [variantJson, setVariantJson] = useState(EMPTY_VARIANTS);
+  const [variantGroups, setVariantGroups] = useState<VariantGroupDraft[]>([]);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -58,7 +63,7 @@ export function AdminProductFormPage() {
     setPrice(String(product.price));
     setActive(product.active ?? true);
     setSortOrder(String(product.sortOrder ?? 0));
-    setVariantJson(JSON.stringify(product.variantOptions, null, 2));
+    setVariantGroups(variantOptionsToDrafts(product.variantOptions));
     setImagePreview(product.imageUrl);
   };
 
@@ -88,7 +93,12 @@ export function AdminProductFormPage() {
     setSaving(true);
     setError(null);
     try {
-      const variantOptions = JSON.parse(variantJson) as Record<string, unknown>;
+      const validationError = validateVariantDrafts(variantGroups);
+      if (validationError) {
+        throw new Error(t(`admin.products.errors.${validationError}`));
+      }
+
+      const variantOptions = draftsToVariantOptions(variantGroups);
       const payload = {
         name: { es: nameEs, en: nameEn },
         description: { es: descEs, en: descEn },
@@ -103,7 +113,7 @@ export function AdminProductFormPage() {
       if (isEdit && productId) {
         await updateAdminProduct(token, productId, payload);
       } else {
-        if (!savedId) throw new Error("missing_id");
+        if (!savedId) throw new Error(t("admin.products.errors.missingId"));
         const created = await createAdminProduct(token, { id: savedId, ...payload });
         savedId = created.product.id;
       }
@@ -197,16 +207,7 @@ export function AdminProductFormPage() {
           {t("admin.products.active")}
         </label>
 
-        <div className={shared.field}>
-          <label htmlFor="variants">{t("admin.products.variants")}</label>
-          <textarea
-            id="variants"
-            className={styles.codeArea}
-            value={variantJson}
-            onChange={(e) => setVariantJson(e.target.value)}
-            rows={12}
-          />
-        </div>
+        <VariantOptionsEditor groups={variantGroups} onChange={setVariantGroups} />
 
         <div className={shared.field}>
           <label htmlFor="image">{t("admin.products.image")}</label>
