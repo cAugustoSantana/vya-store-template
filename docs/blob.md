@@ -10,6 +10,14 @@ In the Vercel dashboard → **Storage** → **Create Database / Store** → **Bl
 
 Connect it to your project. Vercel auto-provisions `BLOB_READ_WRITE_TOKEN`.
 
+**Store access:** New Blob stores may be **Private** or **Public**. The app defaults to `access: private`. If you created a **Public** store, add env var:
+
+```
+BLOB_ACCESS=public
+```
+
+Set `BLOB_ACCESS` for **Production**, **Preview**, and **Development** as needed.
+
 ### 2. Pull env locally
 
 ```bash

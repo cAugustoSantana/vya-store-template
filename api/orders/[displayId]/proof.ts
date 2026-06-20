@@ -60,6 +60,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "upload_failed";
+    if (message === "invalid_json") {
+      return json(res, 400, { error: "invalid_json" });
+    }
     if (
       message === "file_too_large" ||
       message === "invalid_image_type" ||
@@ -71,6 +74,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 503, { error: "blob_not_configured" });
     }
     console.error("proof_upload_error", err);
+    const blobMessage = err instanceof Error ? err.name : "";
+    if (blobMessage.startsWith("Blob")) {
+      return json(res, 502, { error: "blob_upload_failed" });
+    }
     return json(res, 500, { error: "upload_failed" });
   }
 }

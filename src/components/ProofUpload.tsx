@@ -11,6 +11,7 @@ type Props = {
 };
 
 const ALLOWED = ["image/png", "image/jpeg"];
+const MAX_BYTES = 3 * 1024 * 1024;
 
 export function ProofUpload({ displayId, onUploaded, disabled }: Props) {
   const { t } = useTranslation();
@@ -23,6 +24,10 @@ export function ProofUpload({ displayId, onUploaded, disabled }: Props) {
     if (!file || disabled) return;
     if (!ALLOWED.includes(file.type)) {
       setError(t("payment.uploadHint"));
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setError(t("payment.uploadTooLarge"));
       return;
     }
     setError(null);

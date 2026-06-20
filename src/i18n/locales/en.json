@@ -47,6 +47,7 @@
     "leaveHint": "You can leave for your banking app. Save this link or check your email to return.",
     "uploadProof": "Upload proof",
     "uploadHint": "PNG or JPEG, screenshot from your bank",
+    "uploadTooLarge": "Image is too large (max 3 MB). Compress or crop the screenshot.",
     "whatsappProof": "Send proof via WhatsApp",
     "proofUploaded": "Proof submitted",
     "resumeBanner": "You have an order awaiting payment proof",

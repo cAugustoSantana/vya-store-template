@@ -1,5 +1,9 @@
 import { put } from "@vercel/blob";
 
+function getBlobAccess(): "public" | "private" {
+  return process.env.BLOB_ACCESS === "public" ? "public" : "private";
+}
+
 export async function uploadProofImage(params: {
   displayId: string;
   buffer: Buffer;
@@ -14,7 +18,8 @@ export async function uploadProofImage(params: {
   const pathname = `proofs/${params.displayId}-${Date.now()}.${ext}`;
 
   const blob = await put(pathname, params.buffer, {
-    access: "public",
+    access: getBlobAccess(),
+    addRandomSuffix: true,
     contentType: params.contentType,
     token,
   });

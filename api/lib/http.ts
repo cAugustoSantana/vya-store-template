@@ -29,5 +29,8 @@ export function readJsonBody<T>(req: VercelRequest): T {
   if (req.body && typeof req.body === "object") {
     return req.body as T;
   }
+  if (typeof req.body === "string" && req.body.length > 0) {
+    return JSON.parse(req.body) as T;
+  }
   throw new Error("invalid_json");
 }

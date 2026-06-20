@@ -47,6 +47,7 @@
     "leaveHint": "Puedes salir a tu app bancaria. Guarda este enlace o revisa tu correo para volver.",
     "uploadProof": "Subir comprobante",
     "uploadHint": "PNG o JPEG, captura de pantalla de tu banco",
+    "uploadTooLarge": "La imagen es muy grande (máx. 3 MB). Comprime o recorta la captura.",
     "whatsappProof": "Enviar comprobante por WhatsApp",
     "proofUploaded": "Comprobante enviado",
     "resumeBanner": "Tienes un pedido pendiente de comprobante",

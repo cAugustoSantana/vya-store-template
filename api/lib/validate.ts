@@ -150,7 +150,8 @@ export function isValidOrderStatus(status: string): boolean {
   return (storeConfig.orderStatuses as readonly string[]).includes(status);
 }
 
-export const PROOF_MAX_BYTES = 5 * 1024 * 1024;
+// Keep under Vercel's ~4.5MB request limit (base64 adds ~33% overhead in JSON).
+export const PROOF_MAX_BYTES = 3 * 1024 * 1024;
 
 const PNG = [0x89, 0x50, 0x4e, 0x47];
 const JPEG = [0xff, 0xd8, 0xff];
