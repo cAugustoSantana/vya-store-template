@@ -32,7 +32,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     total: Number(order.total),
     locale: order.locale,
     estado: order.estado,
+    createdAt: order.created_at,
     buyerName: order.buyer_name,
+    buyerEmail: order.buyer_email,
     paymentProofMethod: order.payment_proof_method,
     hasProof: Boolean(order.payment_proof_url),
     shipping: {

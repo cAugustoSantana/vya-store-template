@@ -1,4 +1,4 @@
-import { test, expect, hasE2eDatabase, fillCheckoutForm, addDefaultProductToCart } from "./fixtures";
+import { test, expect, hasE2eDatabase, fillCheckoutForm, addDefaultProductToCart, goToCheckoutFromDrawer } from "./fixtures";
 
 test("checkout without cart shows empty message", async ({ page }) => {
   await page.goto("/checkout");
@@ -7,7 +7,7 @@ test("checkout without cart shows empty message", async ({ page }) => {
 
 test("checkout validates required fields", async ({ page }) => {
   await addDefaultProductToCart(page);
-  await page.getByRole("link", { name: /Ir al checkout|Go to checkout/i }).click();
+  await goToCheckoutFromDrawer(page);
   await page.getByRole("button", { name: /Finalizar pedido|Place order/i }).click();
   await expect(page.getByText(/obligatorio|required/i).first()).toBeVisible();
 });
@@ -15,7 +15,7 @@ test("checkout validates required fields", async ({ page }) => {
 test("checkout creates order and redirects to payment page", async ({ page }, testInfo) => {
   if (!hasE2eDatabase()) testInfo.skip();
   await addDefaultProductToCart(page);
-  await page.getByRole("link", { name: /checkout/i }).click();
+  await goToCheckoutFromDrawer(page);
   await fillCheckoutForm(page);
   await page.getByRole("button", { name: /Finalizar pedido|Place order/i }).click();
   await page.waitForURL(/\/order\/payment\/MITIENDA-[a-f0-9]+/i);

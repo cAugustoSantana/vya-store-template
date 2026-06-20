@@ -26,7 +26,9 @@ export type PublicOrder = {
   total: number;
   locale: string;
   estado: string;
+  createdAt: string;
   buyerName: string;
+  buyerEmail: string;
   paymentProofMethod: string | null;
   hasProof: boolean;
   shipping: { address: string; city: string; postalCode: string };

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { screen, waitFor } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { screen, waitFor, cleanup } from "@testing-library/react";
 import { Routes, Route } from "react-router-dom";
 import { PaymentPage } from "./PaymentPage";
 import { renderWithProviders } from "@/test/render";
@@ -16,7 +16,9 @@ const mockOrder: PublicOrder = {
   total: 1500,
   locale: "es",
   estado: "payment_confirmation_pending",
+  createdAt: "2023-10-24T18:34:00.000Z",
   buyerName: "Ana Test",
+  buyerEmail: "ana@example.com",
   paymentProofMethod: null,
   hasProof: false,
   shipping: {
@@ -52,7 +54,11 @@ describe("PaymentPage", () => {
     localStorage.clear();
   });
 
-  it("loads order and shows bank details", async () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("loads order and shows confirmation layout with bank details", async () => {
     renderWithProviders(
       <Routes>
         <Route path="/order/payment/:displayId" element={<PaymentPage />} />
@@ -64,10 +70,19 @@ describe("PaymentPage", () => {
       expect(screen.getByText(/MITIENDA-12345/)).toBeInTheDocument();
     });
 
-    expect(screen.getByText(/Pedido confirmado|Order Confirmed/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: /Pedido confirmado|Order Confirmed/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Delivery Status|Estado de entrega/i)).toBeInTheDocument();
+    expect(screen.getByText(/Shipping Info|Información de envío/i)).toBeInTheDocument();
+    expect(screen.getByText("ana@example.com")).toBeInTheDocument();
     expect(screen.getByText("1234567890")).toBeInTheDocument();
     expect(screen.getByText(/Camiseta/)).toBeInTheDocument();
     expect(screen.getByText(/Calle Central/)).toBeInTheDocument();
+    expect(screen.getByText(/Return to shop|Volver a la tienda/i)).toBeInTheDocument();
     expect(screen.getAllByText(/DOP.?1,500|1\.500/).length).toBeGreaterThan(0);
     expect(fetchPublicOrder).toHaveBeenCalledWith("MITIENDA-12345");
     expect(localStorage.getItem("activeOrderDisplayId")).toBe("MITIENDA-12345");
@@ -89,5 +104,21 @@ describe("PaymentPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/Comprobante enviado|Proof submitted/)).toBeInTheDocument();
     });
+  });
+
+  it("shows delivery timeline step labels", async () => {
+    renderWithProviders(
+      <Routes>
+        <Route path="/order/payment/:displayId" element={<PaymentPage />} />
+      </Routes>,
+      { route: "/order/payment/MITIENDA-12345" },
+    );
+
+    await waitFor(() => {
+      expect(screen.getAllByText(/Order Confirmed|Pedido confirmado/i).length).toBeGreaterThan(0);
+    });
+
+    expect(screen.getAllByText(/Out for delivery|En camino/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^Delivered$|^Entregado$/i).length).toBeGreaterThan(0);
   });
 });
