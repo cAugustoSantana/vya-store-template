@@ -17,7 +17,7 @@ export function ProductCard({ product, locale }: Props) {
   return (
     <Link
       to={`/products/${product.id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md lg:max-h-[calc(100dvh-12rem)]"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md lg:max-h-[calc(100dvh-9.5rem)]"
     >
       <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden border-b border-gray-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4 lg:aspect-auto lg:min-h-0 lg:flex-1 lg:p-3">
         <img

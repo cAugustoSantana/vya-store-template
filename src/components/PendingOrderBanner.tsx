@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
 import { fetchPublicOrder } from "@/lib/api";
 import type { PublicOrder } from "@/types/commerce";
-import styles from "./PendingOrderBanner.module.css";
 
 export function PendingOrderBanner() {
   const { t } = useTranslation();
@@ -42,9 +41,15 @@ export function PendingOrderBanner() {
   if (!show || !displayId) return null;
 
   return (
-    <div className={styles.banner} role="status">
+    <div
+      className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-b border-amber-200 bg-amber-50 px-4 py-1.5 text-xs font-medium text-amber-950 sm:px-6 lg:px-8"
+      role="status"
+    >
       <span>{t("payment.resumeBanner")}</span>
-      <Link to={`/order/payment/${displayId}`} className={styles.link}>
+      <Link
+        to={`/order/payment/${displayId}`}
+        className="font-semibold text-brand-600 hover:underline"
+      >
         {t("payment.resumeCta")}
       </Link>
     </div>

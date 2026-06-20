@@ -86,7 +86,7 @@ export function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50/50 font-sans">
+      <div className="flex h-[100dvh] items-center justify-center bg-gray-50/50 font-sans">
         <p className="text-gray-500">{t("common.loading")}</p>
       </div>
     );
@@ -94,9 +94,9 @@ export function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50/50 font-sans text-gray-900">
+      <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900">
         <StorefrontHeader showAdminNav />
-        <main className="mx-auto w-full max-w-[1440px] flex-grow px-6 py-16 text-center lg:px-10">
+        <main className="mx-auto flex flex-1 flex-col items-center justify-center px-4 py-8 text-center lg:px-8">
           <p className="text-gray-500">{t("productDetail.notFound")}</p>
           <Link
             to="/"
@@ -131,7 +131,7 @@ export function ProductDetailPage() {
       <StorefrontHeader showAdminNav />
 
       <main
-        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4 ${
+        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-4 py-3 lg:overflow-hidden lg:px-8 lg:py-3 ${
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
@@ -152,7 +152,7 @@ export function ProductDetailPage() {
 
         <div className="grid flex-1 grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-8 xl:gap-10">
           <div className="flex flex-col gap-3 lg:col-span-7 lg:min-h-0 lg:max-h-full">
-            <div className="relative flex aspect-square min-h-0 flex-1 items-center justify-center overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-8 lg:aspect-auto lg:max-h-[calc(100dvh-9rem)] lg:p-6">
+            <div className="relative flex aspect-square min-h-0 flex-1 items-center justify-center overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 lg:aspect-auto lg:max-h-[calc(100dvh-7rem)] lg:p-5">
               <div className="absolute inset-0 flex items-center justify-center opacity-[0.07]">
                 <TShirt size={320} weight="fill" className="text-brand-600 lg:hidden" aria-hidden />
                 <TShirt size={240} weight="fill" className="hidden text-brand-600 lg:block" aria-hidden />

@@ -3,12 +3,12 @@ import { useTranslation } from "react-i18next";
 import { useProducts } from "@/context/ProductsContext";
 import { useState, type FormEvent } from "react";
 import type { Locale } from "@shared/types";
-import { storeConfig } from "@shared/store.config";
 import { useCart } from "@/context/CartContext";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
 import { postCheckout } from "@/lib/api";
 import { getLocalized } from "@/lib/localized";
 import { formatMoney } from "@/lib/format";
+import { StorefrontHeader } from "@/components/StorefrontHeader";
 import type { CheckoutResponse } from "@/types/commerce";
 
 type FormValues = {
@@ -112,37 +112,20 @@ export function CheckoutPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50/50 font-sans text-gray-900">
-        <header className="sticky top-0 z-50 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50">
-          <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 lg:px-10">
-            <Link to="/" className="flex items-center gap-4">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/20">
-                <span className="text-lg font-extrabold">S</span>
-              </div>
-              <div>
-                <div className="text-xl font-bold leading-tight tracking-tight">
-                  {getLocalized(storeConfig.storeName, locale)}
-                </div>
-                <div className="text-sm font-medium text-gray-500">
-                  {getLocalized(storeConfig.description, locale)}
-                </div>
-              </div>
-            </Link>
-            <div className="text-sm font-semibold text-gray-500" />
-          </div>
-        </header>
+      <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
+        <StorefrontHeader showCatalogNav />
 
-        <main className="mx-auto w-full max-w-[1440px] px-6 py-10 lg:px-10 lg:py-14">
-          <h2 className="text-3xl font-extrabold tracking-tight lg:text-4xl">
+        <main className="mx-auto flex flex-1 flex-col justify-center px-4 py-6 lg:px-8">
+          <h2 className="text-2xl font-extrabold tracking-tight lg:text-3xl">
             {t("checkout.title")}
           </h2>
-          <p className="mt-2 text-base text-gray-500 lg:text-lg">
+          <p className="mt-2 text-sm text-gray-500 lg:text-base">
             {t("validation.cartEmpty")}
           </p>
-          <div className="mt-6">
+          <div className="mt-5">
             <Link
               to="/"
-              className="inline-flex rounded-2xl bg-brand-600 px-5 py-3 font-bold text-white hover:bg-brand-700"
+              className="inline-flex rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700"
             >
               {t("common.continueShopping")}
             </Link>
@@ -154,67 +137,21 @@ export function CheckoutPage() {
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
-      <header className="sticky top-0 z-50 shrink-0 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50">
-        <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-6 lg:px-10">
-          <Link to="/" className="flex items-center gap-4">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg shadow-brand-500/20">
-              <span className="text-lg font-extrabold">S</span>
-            </div>
-            <div>
-              <div className="text-xl font-bold leading-tight tracking-tight">
-                {getLocalized(storeConfig.storeName, locale)}
-              </div>
-              <div className="text-sm font-medium text-gray-500">
-                {getLocalized(storeConfig.description, locale)}
-              </div>
-            </div>
-          </Link>
+      <StorefrontHeader showCatalogNav />
 
-          <nav className="hidden items-center gap-1 md:flex">
-            <Link
-              to="/"
-              className="rounded-lg px-4 py-2 font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
-            >
-              {t("nav.store")}
-            </Link>
-          </nav>
-
-          <div className="flex items-center rounded-lg border border-gray-200/50 bg-gray-100/80 p-1" role="group" aria-label={t("locale.switchTo")}>
-            {storeConfig.supportedLocales.map((l) => {
-              const active = l === locale;
-              return (
-                <button
-                  key={l}
-                  type="button"
-                  className={
-                    active
-                      ? "rounded-md border border-gray-200/50 bg-white px-3 py-1.5 text-sm font-semibold text-brand-600 shadow-sm"
-                      : "rounded-md px-3 py-1.5 text-sm font-semibold text-gray-500 transition-colors hover:text-gray-900"
-                  }
-                  aria-pressed={active}
-                  onClick={() => i18n.changeLanguage(l)}
-                >
-                  {t(`locale.${l}`)}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4">
-        <div className="mb-4 shrink-0 lg:mb-3">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-4 py-3 lg:overflow-hidden lg:px-8 lg:py-3">
+        <div className="mb-3 shrink-0 lg:mb-2">
           <Link
             to="/"
-            className="mb-2 inline-flex items-center gap-2 text-sm font-bold text-brand-600 hover:underline lg:mb-1"
+            className="mb-1.5 inline-flex items-center gap-2 text-xs font-bold text-brand-600 hover:underline lg:mb-1"
           >
             <span aria-hidden>←</span>
             {t("common.continueShopping")}
           </Link>
-          <h2 className="mb-1 text-2xl font-extrabold tracking-tight text-gray-900 lg:text-3xl">
+          <h2 className="mb-0.5 text-xl font-extrabold tracking-tight text-gray-900 lg:text-2xl">
             {t("checkout.title")}
           </h2>
-          <p className="text-sm text-gray-500 lg:text-base">{t("checkout.subtitle")}</p>
+          <p className="text-xs text-gray-500 lg:text-sm">{t("checkout.subtitle")}</p>
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
@@ -346,7 +283,7 @@ export function CheckoutPage() {
           </div>
 
           <div className="lg:col-span-5 lg:min-h-0">
-            <div className="flex max-h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-[4.5rem] lg:max-h-[calc(100dvh-5.5rem)] lg:overflow-y-auto lg:p-6">
+            <div className="flex max-h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-14 lg:max-h-[calc(100dvh-3.75rem)] lg:overflow-y-auto lg:p-6">
               <h3 className="mb-4 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3 text-lg font-bold text-gray-900">
                 {t("checkout.orderSummary")}
                 <span className="text-sm font-medium text-gray-500">

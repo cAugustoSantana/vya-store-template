@@ -19,15 +19,15 @@ export function StorefrontPage() {
       <PendingOrderBanner />
 
       <main
-        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-6 py-4 lg:overflow-hidden lg:px-10 lg:py-4 ${
+        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col overflow-y-auto px-4 py-3 lg:overflow-hidden lg:px-8 lg:py-3 ${
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
-        <div className="mb-4 shrink-0 lg:mb-3">
-          <h1 className="mb-1 text-2xl font-extrabold tracking-tight text-gray-900 lg:text-3xl">
+        <div className="mb-3 shrink-0 lg:mb-2">
+          <h1 className="mb-0.5 text-xl font-extrabold tracking-tight text-gray-900 lg:text-2xl">
             {t("storefront.title")}
           </h1>
-          <p className="text-sm text-gray-500 lg:text-base">{t("storefront.subtitle")}</p>
+          <p className="text-xs text-gray-500 lg:text-sm">{t("storefront.subtitle")}</p>
         </div>
 
         {loading && <p className="text-gray-500">{t("common.loading")}</p>}

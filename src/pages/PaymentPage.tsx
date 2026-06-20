@@ -72,7 +72,7 @@ export function PaymentPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50/50 font-sans text-gray-900">
+      <div className="flex h-[100dvh] items-center justify-center bg-gray-50/50 font-sans text-gray-900">
         <p className="text-gray-500">{t("common.loading")}</p>
       </div>
     );
@@ -80,7 +80,7 @@ export function PaymentPage() {
 
   if (error || !order) {
     return (
-      <div className="flex min-h-screen flex-col bg-gray-50/50 font-sans text-gray-900">
+      <div className="flex h-[100dvh] flex-col bg-gray-50/50 font-sans text-gray-900">
         <main className="mx-auto flex flex-1 flex-col items-center justify-center px-6 text-center">
           <p className="font-medium text-red-600">{error ?? t("common.error")}</p>
           <Link
@@ -104,9 +104,9 @@ export function PaymentPage() {
   const confirmedDate = formatConfirmedDate(order.createdAt, locale);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
-      <main className="mx-auto w-full max-w-[1000px] flex-grow px-6 py-10 lg:px-10 lg:py-14">
-        <div className="mb-10 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
+      <main className="mx-auto w-full max-w-[1000px] flex-1 overflow-y-auto px-4 py-6 lg:px-8 lg:py-8">
+        <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
             <div className="mb-3 flex items-center gap-3">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600">
