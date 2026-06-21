@@ -1,5 +1,6 @@
 import type { PublicStoreSettings } from "@shared/storeSettings.types";
 import { storeConfig } from "@shared/store.config";
+import { applyBrandPaletteToDocument } from "@/lib/brandPalette";
 
 let currency = storeConfig.currency;
 let primaryColor = storeConfig.primaryColor;
@@ -15,5 +16,5 @@ export function getStorePrimaryColor(): string {
 export function applyPublicStoreSettings(settings: PublicStoreSettings): void {
   currency = settings.currency;
   primaryColor = settings.primaryColor;
-  document.documentElement.style.setProperty("--color-primary", settings.primaryColor);
+  applyBrandPaletteToDocument(settings.primaryColor);
 }

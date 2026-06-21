@@ -59,7 +59,7 @@ describe("PaymentPage", () => {
     cleanup();
   });
 
-  it("loads order and shows expanded bank and proof sections", async () => {
+  it("loads order and shows bank details and proof upload", async () => {
     renderWithProviders(
       <Routes>
         <Route path="/order/payment/:displayId" element={<PaymentPage />} />
@@ -79,17 +79,14 @@ describe("PaymentPage", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("1234567890")).toBeInTheDocument();
     expect(screen.getByText(/Upload proof|Subir comprobante/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Delivery Status|Estado de entrega/i })).toHaveAttribute(
-      "aria-expanded",
-      "false",
-    );
+    expect(screen.getByText(/Siguiente paso|Next step/i)).toBeInTheDocument();
     expect(screen.queryByText("ana@example.com")).not.toBeInTheDocument();
     expect(screen.queryByText(/Camiseta/)).not.toBeInTheDocument();
     expect(fetchPublicOrder).toHaveBeenCalledWith("MITIENDA-12345");
     expect(localStorage.getItem("activeOrderDisplayId")).toBe("MITIENDA-12345");
   });
 
-  it("expands collapsed shipping info", async () => {
+  it("expands order summary to show items and shipping", async () => {
     const user = userEvent.setup();
 
     renderWithProviders(
@@ -100,12 +97,12 @@ describe("PaymentPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Shipping Info|Información de envío/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Resumen del pedido|Order summary/i })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: /Shipping Info|Información de envío/i }));
+    await user.click(screen.getByRole("button", { name: /Resumen del pedido|Order summary/i }));
 
-    expect(screen.getByText("ana@example.com")).toBeInTheDocument();
+    expect(screen.getByText(/Camiseta/)).toBeInTheDocument();
     expect(screen.getByText(/Calle Central/)).toBeInTheDocument();
   });
 
@@ -125,25 +122,7 @@ describe("PaymentPage", () => {
     await waitFor(() => {
       expect(screen.getByText(/Comprobante enviado|Proof submitted/)).toBeInTheDocument();
     });
-  });
 
-  it("expands delivery timeline to show step labels", async () => {
-    const user = userEvent.setup();
-
-    renderWithProviders(
-      <Routes>
-        <Route path="/order/payment/:displayId" element={<PaymentPage />} />
-      </Routes>,
-      { route: "/order/payment/MITIENDA-12345" },
-    );
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Delivery Status|Estado de entrega/i })).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByRole("button", { name: /Delivery Status|Estado de entrega/i }));
-
-    expect(screen.getAllByText(/Out for delivery|En camino/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/^Delivered$|^Entregado$/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/Siguiente paso|Next step/i)).not.toBeInTheDocument();
   });
 });

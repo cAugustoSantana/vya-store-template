@@ -3,7 +3,9 @@ import { test, expect, gotoStorefront, addDefaultProductToCart } from "./fixture
 test("storefront shows product cards", async ({ page }) => {
   await gotoStorefront(page);
   await expect(page.getByText(/Gorra|Logo Cap/)).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Catálogo|Catalog/ })).toBeVisible();
+  await expect(
+    page.getByRole("link", { name: /Camiseta|Basic T-shirt/i }).first(),
+  ).toBeVisible();
 });
 
 test("add to cart opens drawer with total", async ({ page }) => {

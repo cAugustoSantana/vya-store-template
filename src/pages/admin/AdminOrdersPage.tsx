@@ -2,10 +2,9 @@ import { Link, useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useOrdersPoll } from "@/hooks/useOrdersPoll";
 import { StatusBadge } from "@/components/StatusBadge";
+import { AdminEmpty, AdminPageHeader, AdminTable } from "@/components/admin/AdminUi";
 import { formatMoney } from "@/lib/format";
 import type { Locale } from "@shared/types";
-import shared from "@/styles/shared.module.css";
-import styles from "./admin.module.css";
 
 type AdminOutletContext = { token: string };
 
@@ -17,51 +16,51 @@ export function AdminOrdersPage() {
 
   return (
     <>
-      <header className={shared.pageHeader}>
-        <h1>{t("admin.orders")}</h1>
-      </header>
+      <AdminPageHeader title={t("admin.orders")} />
 
-      {loading && orders.length === 0 && <p>{t("common.loading")}</p>}
-      {error && <p className={shared.error}>{error}</p>}
+      {loading && orders.length === 0 && <p className="text-sm text-gray-500">{t("common.loading")}</p>}
+      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
 
       {orders.length === 0 && !loading ? (
-        <p className={styles.empty}>{t("admin.noOrders")}</p>
+        <AdminEmpty>{t("admin.noOrders")}</AdminEmpty>
       ) : (
-        <div className={styles.tableWrap}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t("admin.orderId")}</th>
-                <th>{t("admin.date")}</th>
-                <th>{t("admin.buyer")}</th>
-                <th>{t("admin.status")}</th>
-                <th>{t("admin.total")}</th>
-                <th aria-label={t("admin.viewDetails")} />
+        <AdminTable>
+          <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
+            <tr>
+              <th className="px-4 py-3">{t("admin.orderId")}</th>
+              <th className="px-4 py-3">{t("admin.date")}</th>
+              <th className="px-4 py-3">{t("admin.buyer")}</th>
+              <th className="px-4 py-3">{t("admin.status")}</th>
+              <th className="px-4 py-3">{t("admin.total")}</th>
+              <th className="px-4 py-3" aria-label={t("admin.viewDetails")} />
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {orders.map((order) => (
+              <tr key={order.id} className="hover:bg-gray-50/80">
+                <td className="px-4 py-3 font-semibold text-gray-900">{order.displayId}</td>
+                <td className="px-4 py-3 text-gray-600">
+                  {new Date(order.createdAt).toLocaleString(locale)}
+                </td>
+                <td className="px-4 py-3 text-gray-600">{order.buyer.name}</td>
+                <td className="px-4 py-3">
+                  <StatusBadge status={order.estado} />
+                </td>
+                <td className="px-4 py-3 font-medium text-gray-900">
+                  {formatMoney(order.total, locale)}
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    className="text-sm font-semibold text-brand-600 hover:text-brand-700"
+                    to={`/admin/orders/${encodeURIComponent(order.displayId)}`}
+                  >
+                    {t("admin.viewDetails")}
+                  </Link>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.displayId}</td>
-                  <td>{new Date(order.createdAt).toLocaleString(locale)}</td>
-                  <td>{order.buyer.name}</td>
-                  <td>
-                    <StatusBadge status={order.estado} />
-                  </td>
-                  <td>{formatMoney(order.total, locale)}</td>
-                  <td>
-                    <Link
-                      className={styles.viewLink}
-                      to={`/admin/orders/${encodeURIComponent(order.displayId)}`}
-                    >
-                      {t("admin.viewDetails")}
-                    </Link>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </AdminTable>
       )}
     </>
   );

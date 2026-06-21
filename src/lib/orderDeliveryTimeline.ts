@@ -16,7 +16,7 @@ export type DeliveryStep = {
 const FULFILLMENT_RANK: Record<string, number> = {
   payment_confirmation_pending: 0,
   confirmed: 1,
-  in_production: 2,
+  out_for_delivery: 2,
   delivered: 3,
   cancelled: 0,
 };

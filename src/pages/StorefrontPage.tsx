@@ -7,12 +7,20 @@ import { StorefrontHeader } from "@/components/StorefrontHeader";
 import { StorefrontFooter } from "@/components/StorefrontFooter";
 import { CartDrawer } from "@/components/CartDrawer";
 import { PendingOrderBanner } from "@/components/PendingOrderBanner";
+import { useStoreConfig } from "@/context/StoreSettingsContext";
+import { usePageMeta } from "@/hooks/usePageMeta";
+import { getLocalized } from "@/lib/localized";
 
 export function StorefrontPage() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language as Locale;
   const { products, loading, error } = useProducts();
   const { isDrawerOpen } = useCart();
+  const settings = useStoreConfig();
+  const storeName = getLocalized(settings.storeName, locale);
+  const description = getLocalized(settings.description, locale);
+
+  usePageMeta({ title: storeName, description });
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
@@ -24,13 +32,6 @@ export function StorefrontPage() {
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
-        <div className="mb-3 shrink-0 lg:mb-2">
-          <h1 className="mb-0.5 text-xl font-extrabold tracking-tight text-gray-900 lg:text-2xl">
-            {t("storefront.title")}
-          </h1>
-          <p className="text-xs text-gray-500 lg:text-sm">{t("storefront.subtitle")}</p>
-        </div>
-
         {loading && <p className="text-gray-500">{t("common.loading")}</p>}
         {error && <p className="font-medium text-red-600">{error}</p>}
 

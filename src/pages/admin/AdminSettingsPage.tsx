@@ -2,6 +2,8 @@ import { Link, useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState, type FormEvent } from "react";
 import { fetchAdminSettings, updateAdminSettings, uploadAdminStoreLogo } from "@/lib/api";
+import { resolvePublicLogoUrl } from "@/lib/logoUrl";
+import { AdminPageHeader, AdminSuccess } from "@/components/admin/AdminUi";
 import type { StoreSettingsData } from "@shared/storeSettings.types";
 import type { Locale } from "@shared/types";
 import shared from "@/styles/shared.module.css";
@@ -93,7 +95,7 @@ function formToSettings(form: FormState): StoreSettingsData {
     orderStatuses: [
       "payment_confirmation_pending",
       "confirmed",
-      "in_production",
+      "out_for_delivery",
       "delivered",
       "cancelled",
     ],
@@ -117,6 +119,7 @@ export function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [form, setForm] = useState<FormState | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
@@ -165,6 +168,7 @@ export function AdminSettingsPage() {
       setForm(settingsToForm(result.settings));
       setLogoPreview(result.settings.logoUrl);
       setSavedAt(result.updatedAt);
+      setSaveSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "error");
     } finally {
@@ -181,11 +185,17 @@ export function AdminSettingsPage() {
       <Link to="/admin/orders" className={formStyles.backLink}>
         {t("admin.backToOrders")}
       </Link>
-      <header className={shared.pageHeader}>
-        <h1>{t("admin.settings.title")}</h1>
-        <p>{t("admin.settings.subtitle")}</p>
-        {savedAt && <p className={shared.fieldHint}>{t("admin.settings.lastSaved", { date: savedAt })}</p>}
-      </header>
+      <AdminPageHeader
+        title={t("admin.settings.title")}
+        subtitle={t("admin.settings.subtitle")}
+      />
+      {saveSuccess && (
+        <AdminSuccess
+          message={t("admin.settings.saved")}
+          onDismiss={() => setSaveSuccess(false)}
+        />
+      )}
+      {savedAt && <p className={shared.fieldHint}>{t("admin.settings.lastSaved", { date: savedAt })}</p>}
 
       <form className={formStyles.form} onSubmit={(e) => void handleSubmit(e)}>
         <Section title={t("admin.settings.storeSection")}>
@@ -291,7 +301,11 @@ export function AdminSettingsPage() {
               }}
             />
             {logoPreview && (
-              <img src={logoPreview} alt="" className={formStyles.preview} />
+              <img
+                src={resolvePublicLogoUrl(logoPreview)}
+                alt=""
+                className={formStyles.preview}
+              />
             )}
           </div>
         </Section>

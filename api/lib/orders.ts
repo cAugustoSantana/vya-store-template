@@ -138,6 +138,29 @@ export async function listOrdersWithItems(): Promise<OrderWithItems[]> {
   return result;
 }
 
+export async function getOrderWithItemsById(orderId: string): Promise<OrderWithItems | null> {
+  const sql = getSql();
+  const orders = (await sql`
+    SELECT * FROM orders WHERE id = ${orderId}::uuid LIMIT 1
+  `) as OrderRow[];
+
+  const order = orders[0];
+  if (!order) return null;
+
+  const items = (await sql`
+    SELECT * FROM order_items WHERE order_id = ${order.id}::uuid ORDER BY id
+  `) as OrderItemRow[];
+
+  return {
+    ...order,
+    items: items.map((item) => ({
+      ...item,
+      variants:
+        typeof item.variants === "string" ? JSON.parse(item.variants) : item.variants,
+    })),
+  };
+}
+
 export async function updateOrderStatus(orderId: string, estado: string): Promise<OrderRow | null> {
   const sql = getSql();
   const rows = (await sql`

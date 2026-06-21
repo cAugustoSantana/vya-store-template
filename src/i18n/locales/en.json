@@ -123,7 +123,7 @@
   "orderStatus": {
     "payment_confirmation_pending": "Payment confirmation pending",
     "confirmed": "Confirmed",
-    "in_production": "In production",
+    "out_for_delivery": "Out for delivery",
     "delivered": "Delivered",
     "cancelled": "Cancelled"
   },
@@ -161,6 +161,7 @@
       "title": "Store settings",
       "subtitle": "Configure store metadata, contact, and bank transfer details.",
       "save": "Save settings",
+      "saved": "Settings saved successfully",
       "lastSaved": "Last saved: {{date}}",
       "storeSection": "Store identity",
       "contactSection": "Contact & notifications",

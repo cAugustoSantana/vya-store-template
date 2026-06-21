@@ -1,6 +1,6 @@
 import { Link, useOutletContext, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { storeConfig } from "@shared/store.config";
+import { useStoreConfig } from "@/context/StoreSettingsContext";
 import { useAdminOrder } from "@/hooks/useAdminOrder";
 import { updateOrderStatus } from "@/lib/api";
 import { buildBuyerWhatsAppUrl } from "@/lib/whatsapp";
@@ -22,6 +22,7 @@ export function AdminOrderDetailPage() {
   const locale = i18n.language as Locale;
   const { displayId } = useParams<{ displayId: string }>();
   const { token } = useOutletContext<AdminOutletContext>();
+  const settings = useStoreConfig();
   const { order, loading, error, notFound, reload } = useAdminOrder(displayId, token);
 
   const handleStatusChange = async (estado: string) => {
@@ -153,7 +154,7 @@ export function AdminOrderDetailPage() {
                 value={order.estado}
                 onChange={(e) => void handleStatusChange(e.target.value)}
               >
-                {storeConfig.orderStatuses.map((s) => (
+                {settings.orderStatuses.map((s) => (
                   <option key={s} value={s}>
                     {t(`orderStatus.${s}`)}
                   </option>

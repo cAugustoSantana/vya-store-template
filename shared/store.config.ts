@@ -43,7 +43,7 @@ export const storeConfig = {
   orderStatuses: [
     "payment_confirmation_pending",
     "confirmed",
-    "in_production",
+    "out_for_delivery",
     "delivered",
     "cancelled",
   ] as const satisfies readonly OrderStatus[],

@@ -2,7 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { storeConfig } from "@shared/store.config";
 import type { PublicStoreSettings } from "@shared/storeSettings.types";
 import { fetchStoreSettings } from "@/lib/api";
-import { applyPublicStoreSettings } from "@/lib/storeRuntime";
+import { bootstrapStoreSettings } from "@/lib/bootstrapStoreSettings";
+import { syncLocaleFromStoreDefault } from "@/i18n";
 
 type StoreSettingsContextValue = {
   settings: PublicStoreSettings;
@@ -45,10 +46,11 @@ export function StoreSettingsProvider({ children }: { children: React.ReactNode 
     try {
       const data = await fetchStoreSettings();
       setSettings(data.settings);
-      applyPublicStoreSettings(data.settings);
+      bootstrapStoreSettings(data.settings);
+      syncLocaleFromStoreDefault(data.settings.defaultLocale);
     } catch {
       setSettings(defaultSettings);
-      applyPublicStoreSettings(defaultSettings);
+      bootstrapStoreSettings(defaultSettings);
     }
   }, []);
 

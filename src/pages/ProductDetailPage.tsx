@@ -4,23 +4,20 @@ import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   ArrowsCounterClockwise,
-  Check,
-  MagnifyingGlassPlus,
   Minus,
   Plus,
-  SelectionBackground,
   ShoppingCart,
   Star,
-  TShirt,
   Truck,
-  VideoCamera,
 } from "@phosphor-icons/react";
 import { useProducts } from "@/context/ProductsContext";
 import { useCart } from "@/context/CartContext";
 import { StorefrontHeader } from "@/components/StorefrontHeader";
 import { StorefrontFooter } from "@/components/StorefrontFooter";
 import { CartDrawer } from "@/components/CartDrawer";
+import { ProductGallery } from "@/components/ProductGallery";
 import { SizeGuideDialog } from "@/components/SizeGuideDialog";
+import { resolvePublicProductImageUrl } from "@/lib/imageUrl";
 import { getLocalized } from "@/lib/localized";
 import { formatMoney } from "@/lib/format";
 import {
@@ -29,6 +26,7 @@ import {
   isColorVariant,
   isSizeVariant,
 } from "@/lib/variantSwatches";
+import { usePageMeta } from "@/hooks/usePageMeta";
 import type { Locale } from "@shared/types";
 
 export function ProductDetailPage() {
@@ -47,13 +45,11 @@ export function ProductDetailPage() {
 
   const [variants, setVariants] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
-  const [activeThumb, setActiveThumb] = useState(0);
 
   useEffect(() => {
     if (!product) return;
     setVariants(defaultVariants(product.variantOptions));
     setQuantity(1);
-    setActiveThumb(0);
   }, [product]);
 
   const resolvedVariants = useMemo(() => {
@@ -85,6 +81,10 @@ export function ProductDetailPage() {
     return sizeKey ? resolvedVariants[sizeKey] : undefined;
   }, [product, variantKeys, resolvedVariants]);
 
+  const pageTitle = product ? getLocalized(product.name, locale) : t("productDetail.notFound");
+  const pageDescription = product ? getLocalized(product.description, locale) : undefined;
+  usePageMeta({ title: pageTitle, description: pageDescription });
+
   if (loading) {
     return (
       <div className="flex h-[100dvh] items-center justify-center bg-gray-50/50 font-sans">
@@ -113,7 +113,7 @@ export function ProductDetailPage() {
 
   const name = getLocalized(product.name, locale);
   const description = getLocalized(product.description, locale);
-  const nameShort = name.slice(0, 8).toUpperCase();
+  const imageSrc = resolvePublicProductImageUrl(product.id, product.imageUrl);
 
   const handleAdd = () => {
     if (!allSelected || quantity < 1) return;
@@ -151,75 +151,9 @@ export function ProductDetailPage() {
           </Link>
         </div>
 
-        <div className="grid flex-1 grid-cols-1 items-start gap-8 lg:grid-cols-12 lg:items-stretch lg:gap-8 xl:gap-10">
+        <div className="grid flex-1 grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:items-stretch lg:gap-8">
           <div className="flex flex-col gap-3 lg:col-span-7 lg:min-h-0 lg:max-h-full">
-            <div className="relative flex aspect-square min-h-0 flex-1 items-center justify-center overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 lg:aspect-auto lg:max-h-[calc(100dvh-7rem)] lg:p-5">
-              <div className="absolute inset-0 flex items-center justify-center opacity-[0.07]">
-                <TShirt size={320} weight="fill" className="text-brand-600 lg:hidden" aria-hidden />
-                <TShirt size={240} weight="fill" className="hidden text-brand-600 lg:block" aria-hidden />
-              </div>
-              {activeThumb === 0 ? (
-                <img
-                  src={product.imageUrl}
-                  alt={name}
-                  className="relative z-10 max-h-full max-w-full object-contain"
-                />
-              ) : (
-                <>
-                  <span className="relative z-10 text-4xl font-bold tracking-widest text-brand-600 opacity-20">
-                    {nameShort}
-                  </span>
-                  <TShirt
-                    size={240}
-                    weight="fill"
-                    className="relative z-10 text-brand-600/20"
-                    aria-hidden
-                  />
-                </>
-              )}
-            </div>
-
-            <div className="grid shrink-0 grid-cols-4 gap-2 lg:gap-3">
-              {[0, 1, 2, 3].map((index) => {
-                const active = activeThumb === index;
-                const icons = [
-                  { Icon: TShirt, weight: "fill" as const },
-                  { Icon: SelectionBackground, weight: "regular" as const },
-                  { Icon: MagnifyingGlassPlus, weight: "regular" as const },
-                  { Icon: VideoCamera, weight: "regular" as const },
-                ];
-                const { Icon, weight } = icons[index];
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    onClick={() => setActiveThumb(index)}
-                    className={
-                      active
-                        ? "flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-brand-500 bg-white p-2 lg:p-3"
-                        : "flex aspect-square cursor-pointer items-center justify-center rounded-xl border border-gray-200 bg-gray-50 p-2 transition-colors hover:border-brand-200 lg:p-3"
-                    }
-                    aria-label={t("productDetail.thumbnail", { index: index + 1 })}
-                    aria-pressed={active}
-                  >
-                    {index === 0 ? (
-                      <img
-                        src={product.imageUrl}
-                        alt=""
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    ) : (
-                      <Icon
-                        size={32}
-                        weight={weight}
-                        className={active ? "text-brand-600" : "text-gray-300"}
-                        aria-hidden
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+            <ProductGallery images={[imageSrc]} alt={name} />
           </div>
 
           <div className="space-y-5 lg:col-span-5 lg:min-h-0 lg:overflow-y-auto lg:pr-1 lg:space-y-4">
@@ -245,21 +179,7 @@ export function ProductDetailPage() {
             </div>
 
             <div className="space-y-3 lg:space-y-2">
-              <p className="line-clamp-2 text-sm leading-relaxed text-gray-600 lg:line-clamp-3">{description}</p>
-              <ul className="space-y-1.5 text-sm text-gray-500 lg:hidden">
-                <li className="flex items-center gap-2">
-                  <Check size={16} weight="bold" className="text-brand-500" aria-hidden />
-                  {t("productDetail.feature1")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} weight="bold" className="text-brand-500" aria-hidden />
-                  {t("productDetail.feature2")}
-                </li>
-                <li className="flex items-center gap-2">
-                  <Check size={16} weight="bold" className="text-brand-500" aria-hidden />
-                  {t("productDetail.feature3")}
-                </li>
-              </ul>
+              <p className="line-clamp-3 text-sm leading-relaxed text-gray-600">{description}</p>
             </div>
 
             <div className="space-y-4 lg:space-y-3">

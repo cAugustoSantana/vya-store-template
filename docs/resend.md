@@ -1,70 +1,37 @@
-# Resend (transactional email)
-
-Checkout sends two emails after an order is saved:
-
-1. **Customer** — order confirmation with payment page link
-2. **Owner** — new order notification with buyer contact info
-
-If `RESEND_API_KEY` is missing, orders still succeed; email is skipped and a warning is logged.
+# Resend transactional email
 
 ## Setup
 
-### 1. Create a Resend account
+1. Create a [Resend](https://resend.com) account and verify your sending domain.
+2. Add `RESEND_API_KEY` to your Vercel project and local `.env`.
+3. In **Admin → Settings**, set:
+   - **Email from** — e.g. `Pedidos Mi Tienda <pedidos@tudominio.com>`
+   - **Owner email** — receives new-order and proof-uploaded notifications.
 
-Sign up at [resend.com](https://resend.com) and create an API key with **Sending access**.
+Optional: set `SITE_URL` (e.g. `https://mitienda.com`) so email logos, payment links, and admin links use a stable origin instead of the deployment URL.
 
-Add it to Vercel (and `.env` locally):
+## Events
 
-```
-RESEND_API_KEY=re_...
-```
+| Trigger | Customer | Owner |
+|---------|----------|-------|
+| Checkout | Order received + payment link | New order |
+| Admin → `confirmed` | Payment confirmed | Payment confirmed |
+| Admin → `out_for_delivery` | On the way + shipping | — |
+| Proof uploaded | — | Proof uploaded |
 
-### 2. Verify your sending domain
+If `RESEND_API_KEY` is missing, emails are skipped gracefully (logged as `email_skipped_no_resend_key`).
 
-In Resend → **Domains**, add your domain (e.g. `mitienda.com`) and add the DNS records Resend provides (SPF, DKIM, etc.).
+## Design
 
-Until the domain is verified, you can only send to your own Resend account email (sandbox mode).
+Templates in `api/lib/emailTemplates.ts` mirror the storefront UI:
 
-### 3. Set `email.from` in config
+- Gray page background (`#f9fafb`)
+- White rounded card with subtle border/shadow
+- Header with store logo (`/api/settings/logo` absolute URL)
+- Brand-colored badge and callouts; green callout for confirmations
+- Order summary table and shipping block
+- CTA buttons using the store `primaryColor` from settings
 
-Edit [`shared/store.config.ts`](../shared/store.config.ts):
+All user-provided text is passed through `escapeHtml()`.
 
-```ts
-email: { from: "Pedidos Mi Tienda <pedidos@mitienda.com>" },
-```
-
-The address must use a **verified domain** in Resend.
-
-### 4. Set owner notification recipient
-
-```ts
-contact: {
-  ownerEmail: "owner@mitienda.com",
-  // ...
-},
-```
-
-Owner emails go to `contact.ownerEmail`. Customer emails go to the buyer address from checkout.
-
-## Local development
-
-- Pull env with `vercel env pull`
-- Without a verified domain, test by placing orders with **your Resend account email** as the buyer
-- Owner emails also require a verified `from` domain or will fail silently (logged)
-
-## Production checklist
-
-- [ ] Domain verified in Resend
-- [ ] `email.from` uses verified domain
-- [ ] `contact.ownerEmail` is correct
-- [ ] `RESEND_API_KEY` set in Vercel **Production** (and Preview if testing there)
-
-## Troubleshooting
-
-| Symptom | Likely cause |
-|---------|----------------|
-| Order created, no email | Missing `RESEND_API_KEY` or unverified `from` domain |
-| Customer email only | Owner address wrong or blocked |
-| 200 on checkout, no email in Resend dashboard | Check server logs for `email_skipped_no_resend_key` |
-
-Email failure after the order is saved does **not** fail checkout — the API returns 200 so customers are not blocked.
+Owner emails link to `/admin/orders/{displayId}`.

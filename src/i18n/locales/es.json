@@ -123,7 +123,7 @@
   "orderStatus": {
     "payment_confirmation_pending": "Confirmación de pago pendiente",
     "confirmed": "Confirmado",
-    "in_production": "En producción",
+    "out_for_delivery": "En camino",
     "delivered": "Entregado",
     "cancelled": "Cancelado"
   },
@@ -161,6 +161,7 @@
       "title": "Configuración de la tienda",
       "subtitle": "Configura metadatos de la tienda, contacto y datos de transferencia bancaria.",
       "save": "Guardar configuración",
+      "saved": "Configuración guardada correctamente",
       "lastSaved": "Última guardada: {{date}}",
       "storeSection": "Identidad de la tienda",
       "contactSection": "Contacto y notificaciones",

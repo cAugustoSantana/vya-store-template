@@ -19,6 +19,12 @@ describe("buildDeliverySteps", () => {
     expect(steps[1]?.state).toBe("active");
   });
 
+  it("activates delivered when order is out for delivery", () => {
+    const steps = buildDeliverySteps({ estado: "out_for_delivery", createdAt });
+    expect(steps[1]?.state).toBe("complete");
+    expect(steps[2]?.state).toBe("active");
+  });
+
   it("completes all steps when delivered", () => {
     const steps = buildDeliverySteps({ estado: "delivered", createdAt });
     expect(steps.every((step) => step.state === "complete")).toBe(true);

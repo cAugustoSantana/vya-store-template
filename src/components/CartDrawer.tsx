@@ -13,6 +13,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import { useProducts } from "@/context/ProductsContext";
 import { cartLineTileClass, formatCartVariants } from "@/lib/cartDisplay";
+import { resolvePublicProductImageUrl } from "@/lib/imageUrl";
 import { formatMoney } from "@/lib/format";
 import { getLocalized } from "@/lib/localized";
 import { useStoreConfig } from "@/context/StoreSettingsContext";
@@ -101,7 +102,7 @@ export function CartDrawer() {
                   >
                     {product?.imageUrl ? (
                       <img
-                        src={product.imageUrl}
+                        src={resolvePublicProductImageUrl(line.productId, product.imageUrl)}
                         alt=""
                         className="max-h-full max-w-full object-contain p-2"
                       />

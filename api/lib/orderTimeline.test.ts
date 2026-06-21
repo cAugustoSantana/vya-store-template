@@ -68,7 +68,7 @@ describe("buildOrderTimeline", () => {
   });
 
   it("includes status milestone for non-pending non-confirmed states", () => {
-    const events = buildOrderTimeline(makeOrder({ estado: "in_production" }));
+    const events = buildOrderTimeline(makeOrder({ estado: "out_for_delivery" }));
     expect(events.some((e) => e.type === "status_updated")).toBe(true);
   });
 });

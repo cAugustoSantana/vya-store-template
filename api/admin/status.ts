@@ -1,8 +1,10 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { hasDatabase } from "../lib/db.js";
 import { requireAdmin } from "../lib/auth.js";
-import { updateOrderStatus } from "../lib/orders.js";
+import { getOrderById, updateOrderStatus } from "../lib/orders.js";
+import { notifyOrderStatusChange } from "../lib/email.js";
 import { isValidOrderStatus } from "../lib/validate.js";
+import type { OrderStatus } from "../../shared/types.js";
 import { json, methodNotAllowed, readJsonBody } from "../lib/http.js";
 
 type StatusBody = { orderId: string; estado: string };
@@ -27,9 +29,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return json(res, 400, { error: "invalid_status" });
     }
 
+    const existing = await getOrderById(body.orderId);
+    if (!existing) {
+      return json(res, 404, { error: "order_not_found" });
+    }
+
+    const previousStatus = existing.estado as OrderStatus;
     const updated = await updateOrderStatus(body.orderId, body.estado);
     if (!updated) {
       return json(res, 404, { error: "order_not_found" });
+    }
+
+    if (previousStatus !== updated.estado) {
+      await notifyOrderStatusChange({
+        orderId: body.orderId,
+        previousStatus,
+        newStatus: updated.estado as OrderStatus,
+      });
     }
 
     return json(res, 200, {

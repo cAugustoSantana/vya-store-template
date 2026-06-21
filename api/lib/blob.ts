@@ -39,7 +39,7 @@ export async function uploadProductImage(params: {
   const pathname = `products/${params.productId}/${Date.now()}.${ext}`;
 
   const blob = await put(pathname, params.buffer, {
-    access: "public",
+    access: getBlobAccess(),
     addRandomSuffix: true,
     contentType: params.contentType,
     token: getBlobToken(),
@@ -56,7 +56,7 @@ export async function uploadStoreLogo(params: {
   const pathname = `store/logo/${Date.now()}.${ext}`;
 
   const blob = await put(pathname, params.buffer, {
-    access: "public",
+    access: getBlobAccess(),
     addRandomSuffix: true,
     contentType: params.contentType,
     token: getBlobToken(),
@@ -65,7 +65,7 @@ export async function uploadStoreLogo(params: {
   return blob.url;
 }
 
-export async function fetchProofImage(
+export async function fetchBlobImage(
   url: string,
 ): Promise<{ buffer: Buffer; contentType: string }> {
   const result = await get(url, {
@@ -74,7 +74,7 @@ export async function fetchProofImage(
   });
 
   if (!result || result.statusCode !== 200 || !result.stream) {
-    throw new Error("proof_not_found");
+    throw new Error("blob_not_found");
   }
 
   const chunks: Uint8Array[] = [];
@@ -89,4 +89,11 @@ export async function fetchProofImage(
     buffer: Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))),
     contentType: result.blob.contentType,
   };
+}
+
+/** @deprecated Use fetchBlobImage */
+export async function fetchProofImage(
+  url: string,
+): Promise<{ buffer: Buffer; contentType: string }> {
+  return fetchBlobImage(url);
 }

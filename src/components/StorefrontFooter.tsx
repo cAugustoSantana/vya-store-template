@@ -1,15 +1,24 @@
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ArrowRight, Storefront } from "@phosphor-icons/react";
+import { ArrowRight, InstagramLogo, WhatsappLogo } from "@phosphor-icons/react";
 import { useStoreConfig } from "@/context/StoreSettingsContext";
 import { getLocalized } from "@/lib/localized";
+import { resolvePublicLogoUrl } from "@/lib/logoUrl";
 import type { Locale } from "@shared/types";
+
+function whatsAppUrl(countryCode: string, number: string): string {
+  const digits = `${countryCode}${number}`.replace(/\D/g, "");
+  return `https://wa.me/${digits}`;
+}
 
 export function StorefrontFooter() {
   const { t, i18n } = useTranslation();
   const locale = i18n.language as Locale;
   const year = new Date().getFullYear();
   const settings = useStoreConfig();
+  const storeName = getLocalized(settings.storeName, locale);
+  const logoSrc = resolvePublicLogoUrl(settings.logoUrl);
+  const waUrl = whatsAppUrl(settings.contact.whatsappCountryCode, settings.contact.whatsappNumber);
 
   return (
     <footer className="mt-auto shrink-0 border-t border-gray-200/80 bg-white print:hidden">
@@ -37,20 +46,44 @@ export function StorefrontFooter() {
 
       <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-4 py-5 md:flex-row lg:px-8">
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-gray-400">
-            <Storefront size={18} weight="fill" aria-hidden />
-          </div>
+          <img
+            src={logoSrc}
+            alt={storeName}
+            className="h-8 w-8 rounded-lg object-contain"
+          />
           <span className="text-sm font-bold text-gray-500">
-            {getLocalized(settings.storeName, locale)} © {year}
+            {storeName} © {year}
           </span>
         </div>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs font-semibold text-gray-400 md:text-sm">
-          <Link to="/admin" className="transition-colors hover:text-gray-600">
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 transition-colors hover:text-brand-600"
+            aria-label="WhatsApp"
+          >
+            <WhatsappLogo size={18} weight="fill" aria-hidden />
+            WhatsApp
+          </a>
+          {settings.contact.instagramUrl && (
+            <a
+              href={settings.contact.instagramUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 transition-colors hover:text-brand-600"
+              aria-label="Instagram"
+            >
+              <InstagramLogo size={18} weight="fill" aria-hidden />
+              Instagram
+            </a>
+          )}
+          <Link
+            to="/admin"
+            className="text-sm font-semibold text-gray-400 transition-colors hover:text-gray-600"
+          >
             {t("nav.admin")}
           </Link>
-          <span>{t("productDetail.termsOfService")}</span>
-          <span>{t("productDetail.shippingPolicy")}</span>
-          <span>{t("productDetail.contactSupport")}</span>
         </div>
       </div>
     </footer>

@@ -7,9 +7,8 @@ export const test = base;
 
 export async function gotoStorefront(page: Page) {
   await page.goto("/", { waitUntil: "networkidle" });
-  await expect(page.getByRole("heading", { name: /Catálogo|Catalog/ })).toBeVisible();
   await expect(
-    page.getByRole("link", { name: /Camiseta|Basic T-shirt|Gorra|Logo Cap|Ver producto|View product/i }).first(),
+    page.getByRole("link", { name: /Camiseta|Basic T-shirt|Gorra|Logo Cap/i }).first(),
   ).toBeVisible({ timeout: 15_000 });
 }
 
