@@ -1,44 +1,46 @@
-import { describe, expect, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
+  hasCustomLogo,
   resolvePublicLogoUrl,
   resolvePublicProductImageUrl,
   shouldProxyBlobUrl,
-} from "./imageUrl";
+} from "./imageUrl.js";
 
-describe("shouldProxyBlobUrl", () => {
-  it("returns false for local paths", () => {
-    expect(shouldProxyBlobUrl("/logo.svg")).toBe(false);
-  });
+const privateBlob =
+  "https://u0gs7aghrfzktk7f.private.blob.vercel-storage.com/products/Cuero001/1782043875163.jpg";
 
-  it("returns false for public blob URLs", () => {
-    expect(
-      shouldProxyBlobUrl("https://abc.public.blob.vercel-storage.com/logo.png"),
-    ).toBe(false);
-  });
-
-  it("returns true for private blob URLs", () => {
-    expect(shouldProxyBlobUrl("https://abc.blob.vercel-storage.com/logo.png")).toBe(true);
-  });
-});
-
-describe("resolvePublicLogoUrl", () => {
-  it("proxies private blobs", () => {
-    expect(resolvePublicLogoUrl("https://abc.blob.vercel-storage.com/logo.png")).toBe(
-      "/api/settings/logo",
+describe("imageUrl", () => {
+  it("proxies private blob URLs", () => {
+    expect(shouldProxyBlobUrl(privateBlob)).toBe(true);
+    expect(resolvePublicProductImageUrl("Cuero001", privateBlob)).toBe(
+      "/api/products/Cuero001/image",
     );
+    expect(resolvePublicLogoUrl(privateBlob)).toBe("/api/settings/logo");
   });
 
-  it("passes through public URLs", () => {
-    expect(resolvePublicLogoUrl("https://example.com/logo.png")).toBe(
-      "https://example.com/logo.png",
+  it("keeps local and public paths unchanged", () => {
+    expect(resolvePublicProductImageUrl("prod-1", "/products/prod-1.svg")).toBe(
+      "/products/prod-1.svg",
     );
+    expect(shouldProxyBlobUrl("/products/prod-1.svg")).toBe(false);
   });
-});
 
-describe("resolvePublicProductImageUrl", () => {
-  it("proxies private product images", () => {
-    expect(
-      resolvePublicProductImageUrl("prod-1", "https://abc.blob.vercel-storage.com/p.png"),
-    ).toBe("/api/products/prod-1/image");
+  it("skips proxy when blob store is public", () => {
+    expect(shouldProxyBlobUrl(privateBlob, "public")).toBe(false);
+    expect(resolvePublicProductImageUrl("Cuero001", privateBlob, "public")).toBe(privateBlob);
+  });
+
+  it("detects custom logo", () => {
+    expect(hasCustomLogo("/logo.svg")).toBe(false);
+    expect(hasCustomLogo("")).toBe(false);
+    expect(hasCustomLogo("https://example.com/logo.png")).toBe(true);
+  });
+
+  it("rejects transient preview URLs for public display and persistence", async () => {
+    const { isTransientImageUrl, sanitizePersistedImageUrl } = await import("./imageUrl.js");
+    const blobPreview = "blob:https://stm.vya.do/abc-123";
+    expect(isTransientImageUrl(blobPreview)).toBe(true);
+    expect(sanitizePersistedImageUrl(blobPreview)).toBe("/products/prod-1.svg");
+    expect(resolvePublicProductImageUrl("STM-001", blobPreview)).toBe("/products/prod-1.svg");
   });
 });

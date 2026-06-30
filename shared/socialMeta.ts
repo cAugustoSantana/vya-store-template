@@ -1,98 +1,69 @@
-import type { Locale } from "./types";
-import { resolveLocalized } from "./localized";
-
-export type SocialMetaTags = {
+export type SocialMeta = {
   title: string;
   description: string;
-  image: string;
   url: string;
-  type: "website" | "product";
+  image?: string;
+  type?: "website" | "product";
+  siteName?: string;
 };
 
-export function buildHomeSocialMeta(params: {
-  origin: string;
-  storeName: Record<Locale, string>;
-  description: Record<Locale, string>;
-  locale: Locale;
-  defaultLocale: Locale;
-}): SocialMetaTags {
-  const title = resolveLocalized(params.storeName, params.locale, params.defaultLocale);
-  const description = resolveLocalized(params.description, params.locale, params.defaultLocale);
-  return {
-    title,
-    description,
-    image: `${params.origin}/api/settings/logo`,
-    url: params.origin,
-    type: "website",
-  };
+export function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
-export function buildProductSocialMeta(params: {
-  origin: string;
-  productId: string;
-  productName: Record<Locale, string>;
-  productDescription: Record<Locale, string>;
-  imageUrl: string;
-  locale: Locale;
-  defaultLocale: Locale;
-}): SocialMetaTags {
-  const title = resolveLocalized(params.productName, params.locale, params.defaultLocale);
-  const description = resolveLocalized(
-    params.productDescription,
-    params.locale,
-    params.defaultLocale,
-  );
-  const image = params.imageUrl.startsWith("http")
-    ? params.imageUrl
-    : `${params.origin}${params.imageUrl.startsWith("/") ? "" : "/"}${params.imageUrl}`;
-
-  return {
-    title,
-    description,
-    image: image.includes("vercel-storage.com") && !image.includes(".public.")
-      ? `${params.origin}/api/products/${params.productId}/image`
-      : image,
-    url: `${params.origin}/products/${params.productId}`,
-    type: "product",
-  };
+export function toAbsoluteUrl(origin: string, pathOrUrl: string): string {
+  const trimmed = pathOrUrl.trim();
+  if (!trimmed) return origin;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.startsWith("/")) return `${origin.replace(/\/$/, "")}${trimmed}`;
+  return trimmed;
 }
 
-export function socialMetaToHtml(meta: SocialMetaTags): string {
+export function buildSocialMetaTags(meta: SocialMeta): string[] {
   const tags = [
-    ["og:title", meta.title],
-    ["og:description", meta.description],
-    ["og:image", meta.image],
-    ["og:url", meta.url],
-    ["og:type", meta.type],
-    ["twitter:card", "summary_large_image"],
-    ["twitter:title", meta.title],
-    ["twitter:description", meta.description],
-    ["twitter:image", meta.image],
+    `<meta name="description" content="${escapeHtml(meta.description)}" />`,
+    `<meta property="og:title" content="${escapeHtml(meta.title)}" />`,
+    `<meta property="og:description" content="${escapeHtml(meta.description)}" />`,
+    `<meta property="og:url" content="${escapeHtml(meta.url)}" />`,
+    `<meta property="og:type" content="${meta.type ?? "website"}" />`,
+    `<meta name="twitter:title" content="${escapeHtml(meta.title)}" />`,
+    `<meta name="twitter:description" content="${escapeHtml(meta.description)}" />`,
   ];
 
-  const metaTags = tags
-    .map(
-      ([property, content]) =>
-        `<meta property="${property}" content="${escapeAttr(content)}" />`,
-    )
-    .join("\n");
+  if (meta.siteName) {
+    tags.push(`<meta property="og:site_name" content="${escapeHtml(meta.siteName)}" />`);
+  }
 
+  if (meta.image) {
+    tags.push(`<meta property="og:image" content="${escapeHtml(meta.image)}" />`);
+    tags.push(`<meta name="twitter:card" content="summary_large_image" />`);
+    tags.push(`<meta name="twitter:image" content="${escapeHtml(meta.image)}" />`);
+  } else {
+    tags.push(`<meta name="twitter:card" content="summary" />`);
+  }
+
+  return tags;
+}
+
+export function buildSocialMetaDocument(meta: SocialMeta): string {
+  const tags = buildSocialMetaTags(meta).join("\n    ");
   return `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>${escapeAttr(meta.title)}</title>
-  <meta name="description" content="${escapeAttr(meta.description)}" />
-  ${metaTags}
-</head>
-<body><p>${escapeAttr(meta.title)}</p></body>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${escapeHtml(meta.title)}</title>
+    ${tags}
+  </head>
+  <body>
+    <p><a href="${escapeHtml(meta.url)}">${escapeHtml(meta.title)}</a></p>
+  </body>
 </html>`;
 }
 
-function escapeAttr(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-}
+export const SOCIAL_BOT_UA =
+  /facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|slackbot|discordbot|telegrambot|pinterest/i;

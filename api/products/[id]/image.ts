@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { shouldProxyBlobUrl } from "../../../shared/imageUrl.js";
+import { sanitizePersistedImageUrl, shouldProxyBlobUrl } from "../../../shared/imageUrl.js";
 import { fetchBlobImage } from "../../lib/blob.js";
 import { getProductImageUrl } from "../../lib/products.js";
 import { methodNotAllowed } from "../../lib/http.js";
@@ -20,11 +20,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(404).json({ error: "product_not_found" });
     }
 
-    if (!shouldProxyBlobUrl(imageUrl)) {
-      return res.redirect(302, imageUrl);
+    const persistedUrl = sanitizePersistedImageUrl(imageUrl, "");
+    if (!persistedUrl) {
+      return res.status(404).json({ error: "image_not_found" });
     }
 
-    const { buffer, contentType } = await fetchBlobImage(imageUrl);
+    if (!shouldProxyBlobUrl(persistedUrl)) {
+      return res.redirect(302, persistedUrl);
+    }
+
+    const { buffer, contentType } = await fetchBlobImage(persistedUrl);
     res.setHeader("Content-Type", contentType);
     res.setHeader("Cache-Control", "public, max-age=3600, stale-while-revalidate=86400");
     return res.status(200).send(buffer);

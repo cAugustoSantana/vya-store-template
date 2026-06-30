@@ -1,15 +1,68 @@
-import { get, put } from "@vercel/blob";
+import { get, put, type PutBlobResult } from "@vercel/blob";
+import { requireEnv } from "./env.js";
 
-function getBlobAccess(): "public" | "private" {
+type BlobAccess = "public" | "private";
+
+let resolvedBlobAccess: BlobAccess | null = null;
+
+function getConfiguredBlobAccess(): BlobAccess {
   return process.env.BLOB_ACCESS === "public" ? "public" : "private";
 }
 
-function getBlobToken(): string {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) {
-    throw new Error("BLOB_READ_WRITE_TOKEN is not configured");
+export function getBlobAccess(): BlobAccess {
+  return resolvedBlobAccess ?? getConfiguredBlobAccess();
+}
+
+export function isBlobAccessMismatchError(err: unknown): boolean {
+  return (
+    err instanceof Error &&
+    /Cannot use (?:private|public) access on a (?:public|private) store/.test(
+      err.message,
+    )
+  );
+}
+
+function alternateBlobAccess(access: BlobAccess): BlobAccess {
+  return access === "public" ? "private" : "public";
+}
+
+async function putBlob(
+  pathname: string,
+  body: Buffer,
+  options: {
+    addRandomSuffix: boolean;
+    contentType: "image/png" | "image/jpeg";
+  },
+): Promise<PutBlobResult> {
+  const token = getBlobToken();
+  const access = getBlobAccess();
+
+  try {
+    return await put(pathname, body, { ...options, access, token });
+  } catch (err) {
+    if (!isBlobAccessMismatchError(err)) throw err;
+    const fallback = alternateBlobAccess(access);
+    resolvedBlobAccess = fallback;
+    return put(pathname, body, { ...options, access: fallback, token });
   }
-  return token;
+}
+
+async function getBlob(url: string) {
+  const token = getBlobToken();
+  const access = getBlobAccess();
+
+  try {
+    return await get(url, { access, token });
+  } catch (err) {
+    if (!isBlobAccessMismatchError(err)) throw err;
+    const fallback = alternateBlobAccess(access);
+    resolvedBlobAccess = fallback;
+    return get(url, { access: fallback, token });
+  }
+}
+
+function getBlobToken(): string {
+  return requireEnv("BLOB_READ_WRITE_TOKEN", "READ_WRITE_TOKEN");
 }
 
 export async function uploadProofImage(params: {
@@ -20,11 +73,9 @@ export async function uploadProofImage(params: {
   const ext = params.contentType === "image/png" ? "png" : "jpg";
   const pathname = `proofs/${params.displayId}-${Date.now()}.${ext}`;
 
-  const blob = await put(pathname, params.buffer, {
-    access: getBlobAccess(),
+  const blob = await putBlob(pathname, params.buffer, {
     addRandomSuffix: true,
     contentType: params.contentType,
-    token: getBlobToken(),
   });
 
   return blob.url;
@@ -38,11 +89,9 @@ export async function uploadProductImage(params: {
   const ext = params.contentType === "image/png" ? "png" : "jpg";
   const pathname = `products/${params.productId}/${Date.now()}.${ext}`;
 
-  const blob = await put(pathname, params.buffer, {
-    access: getBlobAccess(),
+  const blob = await putBlob(pathname, params.buffer, {
     addRandomSuffix: true,
     contentType: params.contentType,
-    token: getBlobToken(),
   });
 
   return blob.url;
@@ -55,11 +104,9 @@ export async function uploadStoreLogo(params: {
   const ext = params.contentType === "image/png" ? "png" : "jpg";
   const pathname = `store/logo/${Date.now()}.${ext}`;
 
-  const blob = await put(pathname, params.buffer, {
-    access: getBlobAccess(),
+  const blob = await putBlob(pathname, params.buffer, {
     addRandomSuffix: true,
     contentType: params.contentType,
-    token: getBlobToken(),
   });
 
   return blob.url;
@@ -68,10 +115,7 @@ export async function uploadStoreLogo(params: {
 export async function fetchBlobImage(
   url: string,
 ): Promise<{ buffer: Buffer; contentType: string }> {
-  const result = await get(url, {
-    access: getBlobAccess(),
-    token: getBlobToken(),
-  });
+  const result = await getBlob(url);
 
   if (!result || result.statusCode !== 200 || !result.stream) {
     throw new Error("blob_not_found");

@@ -2,6 +2,12 @@ import { randomUUID } from "crypto";
 import { storeConfig } from "../../shared/store.config.js";
 import { getStoreConfig } from "./storeSettings.js";
 import { getSql } from "./db.js";
+import {
+  aggregateStockLines,
+  decrementStockLine,
+  restoreStockLine,
+  type StockLine,
+} from "./inventory.js";
 import type { OrderItemRow, OrderRow, OrderWithItems } from "../../shared/db.types.js";
 
 export function buildDisplayId(uuid: string, storeSlug = storeConfig.storeSlug): string {
@@ -26,6 +32,25 @@ export async function createOrder(params: {
   const sql = getSql();
   const id = randomUUID();
   let displayId = buildDisplayId(id, config.storeSlug);
+  const stockLines = aggregateStockLines(
+    params.lines.map((line) => ({
+      productId: line.productId,
+      variants: line.variants,
+      quantity: line.quantity,
+    })),
+  );
+  const decremented: StockLine[] = [];
+
+  for (const line of stockLines) {
+    const ok = await decrementStockLine(line);
+    if (!ok) {
+      for (const entry of decremented) {
+        await restoreStockLine(entry);
+      }
+      throw new Error("insufficient_stock");
+    }
+    decremented.push(line);
+  }
 
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
@@ -85,6 +110,9 @@ export async function createOrder(params: {
         displayId = buildDisplayId(randomUUID(), config.storeSlug);
         continue;
       }
+      for (const entry of decremented) {
+        await restoreStockLine(entry);
+      }
       throw err;
     }
   }
@@ -138,29 +166,6 @@ export async function listOrdersWithItems(): Promise<OrderWithItems[]> {
   return result;
 }
 
-export async function getOrderWithItemsById(orderId: string): Promise<OrderWithItems | null> {
-  const sql = getSql();
-  const orders = (await sql`
-    SELECT * FROM orders WHERE id = ${orderId}::uuid LIMIT 1
-  `) as OrderRow[];
-
-  const order = orders[0];
-  if (!order) return null;
-
-  const items = (await sql`
-    SELECT * FROM order_items WHERE order_id = ${order.id}::uuid ORDER BY id
-  `) as OrderItemRow[];
-
-  return {
-    ...order,
-    items: items.map((item) => ({
-      ...item,
-      variants:
-        typeof item.variants === "string" ? JSON.parse(item.variants) : item.variants,
-    })),
-  };
-}
-
 export async function updateOrderStatus(orderId: string, estado: string): Promise<OrderRow | null> {
   const sql = getSql();
   const rows = (await sql`
@@ -195,4 +200,23 @@ export async function getOrderById(orderId: string): Promise<OrderRow | null> {
     SELECT * FROM orders WHERE id = ${orderId}::uuid LIMIT 1
   `) as OrderRow[];
   return rows[0] ?? null;
+}
+
+export async function getOrderWithItemsById(orderId: string): Promise<OrderWithItems | null> {
+  const order = await getOrderById(orderId);
+  if (!order) return null;
+
+  const sql = getSql();
+  const items = (await sql`
+    SELECT * FROM order_items WHERE order_id = ${order.id}::uuid ORDER BY id
+  `) as OrderItemRow[];
+
+  return {
+    ...order,
+    items: items.map((item) => ({
+      ...item,
+      variants:
+        typeof item.variants === "string" ? JSON.parse(item.variants) : item.variants,
+    })),
+  };
 }

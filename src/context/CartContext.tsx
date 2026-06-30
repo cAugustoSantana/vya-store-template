@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { useProducts } from "@/context/ProductsContext";
 import { useStoreConfig } from "@/context/StoreSettingsContext";
+import { maxPurchasableQuantity, lineUnitPrice } from "@/lib/inventory";
 import type { CartLine } from "@/types/commerce";
 
 type CartContextValue = {
@@ -29,19 +30,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const { getProduct } = useProducts();
 
   const addLine = (line: Omit<CartLine, "lineId">) => {
+    const product = getProduct(line.productId);
+    if (product && maxPurchasableQuantity(product, lines, line.variants) <= 0) return;
+
     setLines((prev) => {
       const key = lineKey(line.productId, line.variants);
       const existing = prev.find(
         (l) => lineKey(l.productId, l.variants) === key,
       );
+      const requestedQty = existing ? existing.quantity + line.quantity : line.quantity;
+      const nextQty = product
+        ? Math.min(
+            maxPurchasableQuantity(product, prev, line.variants, existing?.lineId),
+            requestedQty,
+          )
+        : Math.min(99, requestedQty);
+      if (nextQty <= 0) return prev;
+
       if (existing) {
         return prev.map((l) =>
           l.lineId === existing.lineId
-            ? { ...l, quantity: l.quantity + line.quantity }
+            ? { ...l, quantity: nextQty }
             : l,
         );
       }
-      return [...prev, { ...line, lineId: crypto.randomUUID() }];
+      return [...prev, { ...line, lineId: crypto.randomUUID(), quantity: nextQty }];
     });
     setDrawerOpen(true);
   };
@@ -56,9 +69,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setLines((prev) =>
-      prev.map((l) =>
-        l.lineId === lineId ? { ...l, quantity: Math.min(99, quantity) } : l,
-      ),
+      prev.map((l) => {
+        if (l.lineId !== lineId) return l;
+        const product = getProduct(l.productId);
+        const capped = product
+          ? Math.min(maxPurchasableQuantity(product, prev, l.variants, lineId), quantity)
+          : Math.min(99, quantity);
+        return { ...l, quantity: capped };
+      }),
     );
   };
 
@@ -73,7 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const total = useMemo(() => {
     return lines.reduce((sum, line) => {
       const product = getProduct(line.productId);
-      return sum + (product?.price ?? 0) * line.quantity;
+      return sum + lineUnitPrice(product, line.variants) * line.quantity;
     }, 0);
   }, [lines, getProduct]);
 

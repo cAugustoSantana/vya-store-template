@@ -44,11 +44,8 @@ function settingsToForm(settings: StoreSettingsData) {
     whatsappCountryCode: settings.contact.whatsappCountryCode,
     whatsappNumber: settings.contact.whatsappNumber,
     instagramUrl: settings.contact.instagramUrl,
-    bankName: settings.payment.bankTransfer.bankName,
-    accountName: settings.payment.bankTransfer.accountName,
-    accountNumber: settings.payment.bankTransfer.accountNumber,
-    accountTypeEs: settings.payment.bankTransfer.accountType.es,
-    accountTypeEn: settings.payment.bankTransfer.accountType.en,
+    instructionsEs: settings.payment.bankTransfer.instructions.es,
+    instructionsEn: settings.payment.bankTransfer.instructions.en,
     referenceHintEs: settings.payment.bankTransfer.referenceHint.es,
     referenceHintEn: settings.payment.bankTransfer.referenceHint.en,
   };
@@ -82,10 +79,10 @@ function formToSettings(form: FormState): StoreSettingsData {
     payment: {
       provider: "bank_transfer_proof",
       bankTransfer: {
-        bankName: form.bankName.trim(),
-        accountName: form.accountName.trim(),
-        accountNumber: form.accountNumber.trim(),
-        accountType: { es: form.accountTypeEs.trim(), en: form.accountTypeEn.trim() },
+        instructions: {
+          es: form.instructionsEs.trim(),
+          en: form.instructionsEn.trim(),
+        },
         referenceHint: {
           es: form.referenceHintEs.trim(),
           en: form.referenceHintEn.trim(),
@@ -95,6 +92,7 @@ function formToSettings(form: FormState): StoreSettingsData {
     orderStatuses: [
       "payment_confirmation_pending",
       "confirmed",
+      "in_production",
       "out_for_delivery",
       "delivered",
       "cancelled",
@@ -375,63 +373,41 @@ export function AdminSettingsPage() {
         </Section>
 
         <Section title={t("admin.settings.bankSection")}>
-          <div className={shared.field}>
-            <label htmlFor="settings-bank">{t("admin.settings.bankName")}</label>
-            <input
-              id="settings-bank"
-              value={form.bankName}
-              onChange={(e) => updateField("bankName", e.target.value)}
-            />
-          </div>
-          <div className={shared.field}>
-            <label htmlFor="settings-account-name">{t("admin.settings.accountName")}</label>
-            <input
-              id="settings-account-name"
-              value={form.accountName}
-              onChange={(e) => updateField("accountName", e.target.value)}
-            />
-          </div>
-          <div className={shared.field}>
-            <label htmlFor="settings-account-number">{t("admin.settings.accountNumber")}</label>
-            <input
-              id="settings-account-number"
-              value={form.accountNumber}
-              onChange={(e) => updateField("accountNumber", e.target.value)}
-            />
-          </div>
           <div className={formStyles.twoCol}>
             <div className={shared.field}>
-              <label htmlFor="settings-account-type-es">{t("admin.settings.accountTypeEs")}</label>
-              <input
-                id="settings-account-type-es"
-                value={form.accountTypeEs}
-                onChange={(e) => updateField("accountTypeEs", e.target.value)}
-              />
-            </div>
-            <div className={shared.field}>
-              <label htmlFor="settings-account-type-en">{t("admin.settings.accountTypeEn")}</label>
-              <input
-                id="settings-account-type-en"
-                value={form.accountTypeEn}
-                onChange={(e) => updateField("accountTypeEn", e.target.value)}
-              />
-            </div>
-          </div>
-          <div className={formStyles.twoCol}>
-            <div className={shared.field}>
-              <label htmlFor="settings-ref-es">{t("admin.settings.referenceHintEs")}</label>
+              <label htmlFor="settings-instructions-es">{t("admin.settings.instructionsEs")}</label>
               <textarea
-                id="settings-ref-es"
-                rows={2}
+                id="settings-instructions-es"
+                rows={10}
+                value={form.instructionsEs}
+                onChange={(e) => updateField("instructionsEs", e.target.value)}
+                placeholder={t("admin.settings.instructionsPlaceholder")}
+              />
+            </div>
+            <div className={shared.field}>
+              <label htmlFor="settings-instructions-en">{t("admin.settings.instructionsEn")}</label>
+              <textarea
+                id="settings-instructions-en"
+                rows={10}
+                value={form.instructionsEn}
+                onChange={(e) => updateField("instructionsEn", e.target.value)}
+                placeholder={t("admin.settings.instructionsPlaceholder")}
+              />
+            </div>
+          </div>
+          <div className={formStyles.twoCol}>
+            <div className={shared.field}>
+              <label htmlFor="settings-reference-es">{t("admin.settings.referenceHintEs")}</label>
+              <input
+                id="settings-reference-es"
                 value={form.referenceHintEs}
                 onChange={(e) => updateField("referenceHintEs", e.target.value)}
               />
             </div>
             <div className={shared.field}>
-              <label htmlFor="settings-ref-en">{t("admin.settings.referenceHintEn")}</label>
-              <textarea
-                id="settings-ref-en"
-                rows={2}
+              <label htmlFor="settings-reference-en">{t("admin.settings.referenceHintEn")}</label>
+              <input
+                id="settings-reference-en"
                 value={form.referenceHintEn}
                 onChange={(e) => updateField("referenceHintEn", e.target.value)}
               />

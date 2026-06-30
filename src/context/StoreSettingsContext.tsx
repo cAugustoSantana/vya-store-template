@@ -1,9 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { storeConfig } from "@shared/store.config";
 import type { PublicStoreSettings } from "@shared/storeSettings.types";
 import { fetchStoreSettings } from "@/lib/api";
-import { bootstrapStoreSettings } from "@/lib/bootstrapStoreSettings";
+import { defaultPublicStoreSettings } from "@/lib/defaultStoreSettings";
+import { applyPublicStoreSettings } from "@/lib/storeRuntime";
+import { getLocalized } from "@shared/localized";
+import { syncFavicon } from "@/lib/favicon";
 import { syncLocaleFromStoreDefault } from "@/i18n";
+
+function syncDocumentBranding(settings: PublicStoreSettings): void {
+  document.title = getLocalized(settings.storeName, settings.defaultLocale);
+  syncFavicon(settings.logoUrl);
+}
 
 type StoreSettingsContextValue = {
   settings: PublicStoreSettings;
@@ -11,51 +18,39 @@ type StoreSettingsContextValue = {
   refresh: () => Promise<void>;
 };
 
-const defaultSettings: PublicStoreSettings = {
-  storeSlug: storeConfig.storeSlug,
-  storeName: storeConfig.storeName,
-  description: storeConfig.description,
-  defaultLocale: storeConfig.defaultLocale,
-  supportedLocales: [...storeConfig.supportedLocales],
-  currency: storeConfig.currency,
-  taxRate: storeConfig.taxRate,
-  primaryColor: storeConfig.primaryColor,
-  logoUrl: storeConfig.logoUrl,
-  phone: storeConfig.phone,
-  contact: {
-    whatsappCountryCode: storeConfig.contact.whatsappCountryCode,
-    whatsappNumber: storeConfig.contact.whatsappNumber,
-    instagramUrl: storeConfig.contact.instagramUrl,
-  },
-  payment: storeConfig.payment,
-  orderStatuses: [...storeConfig.orderStatuses],
-  defaultOrderStatus: storeConfig.defaultOrderStatus,
-};
-
 const StoreSettingsContext = createContext<StoreSettingsContextValue>({
-  settings: defaultSettings,
+  settings: defaultPublicStoreSettings,
   loading: true,
   refresh: async () => {},
 });
 
-export function StoreSettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<PublicStoreSettings>(defaultSettings);
-  const [loading, setLoading] = useState(true);
+export function StoreSettingsProvider({
+  children,
+  initialSettings = defaultPublicStoreSettings,
+}: {
+  children: React.ReactNode;
+  initialSettings?: PublicStoreSettings;
+}) {
+  const [settings, setSettings] = useState<PublicStoreSettings>(initialSettings);
+  const loading = false;
 
   const refresh = useCallback(async () => {
     try {
       const data = await fetchStoreSettings();
       setSettings(data.settings);
-      bootstrapStoreSettings(data.settings);
+      applyPublicStoreSettings(data.settings);
       syncLocaleFromStoreDefault(data.settings.defaultLocale);
+      syncDocumentBranding(data.settings);
     } catch {
-      setSettings(defaultSettings);
-      bootstrapStoreSettings(defaultSettings);
+      setSettings(defaultPublicStoreSettings);
+      applyPublicStoreSettings(defaultPublicStoreSettings);
+      syncLocaleFromStoreDefault(defaultPublicStoreSettings.defaultLocale);
+      syncDocumentBranding(defaultPublicStoreSettings);
     }
   }, []);
 
   useEffect(() => {
-    void refresh().finally(() => setLoading(false));
+    void refresh();
   }, [refresh]);
 
   const value = useMemo(

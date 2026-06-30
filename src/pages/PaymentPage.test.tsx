@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { screen, waitFor, cleanup } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { screen, waitFor, cleanup, fireEvent } from "@testing-library/react";
 import { Routes, Route } from "react-router-dom";
 import { PaymentPage } from "./PaymentPage";
 import { renderWithProviders } from "@/test/render";
@@ -40,10 +39,10 @@ const mockOrder: PublicOrder = {
   payment: {
     provider: "bank_transfer_proof",
     bankTransfer: {
-      bankName: "Banco Popular",
-      accountName: "Mi Tienda SRL",
-      accountNumber: "1234567890",
-      accountType: "Ahorros",
+      instructions: `Banco Popular
+Mi Tienda SRL
+Cuenta de ahorros
+1234567890`,
       referenceHint: "Usa tu número de pedido",
     },
   },
@@ -59,7 +58,7 @@ describe("PaymentPage", () => {
     cleanup();
   });
 
-  it("loads order and shows bank details and proof upload", async () => {
+  it("loads order and shows next step with bank and proof sections", async () => {
     renderWithProviders(
       <Routes>
         <Route path="/order/payment/:displayId" element={<PaymentPage />} />
@@ -77,18 +76,15 @@ describe("PaymentPage", () => {
         name: /Pedido confirmado|Order Confirmed/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByText("1234567890")).toBeInTheDocument();
-    expect(screen.getByText(/Upload proof|Subir comprobante/i)).toBeInTheDocument();
     expect(screen.getByText(/Siguiente paso|Next step/i)).toBeInTheDocument();
-    expect(screen.queryByText("ana@example.com")).not.toBeInTheDocument();
-    expect(screen.queryByText(/Camiseta/)).not.toBeInTheDocument();
+    expect(screen.getByText(/1234567890/)).toBeInTheDocument();
+    expect(screen.getByText(/Banco Popular/i)).toBeInTheDocument();
+    expect(screen.getByText(/Upload proof|Subir comprobante/i)).toBeInTheDocument();
     expect(fetchPublicOrder).toHaveBeenCalledWith("MITIENDA-12345");
     expect(localStorage.getItem("activeOrderDisplayId")).toBe("MITIENDA-12345");
   });
 
-  it("expands order summary to show items and shipping", async () => {
-    const user = userEvent.setup();
-
+  it("expands order summary details", async () => {
     renderWithProviders(
       <Routes>
         <Route path="/order/payment/:displayId" element={<PaymentPage />} />
@@ -97,12 +93,14 @@ describe("PaymentPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: /Resumen del pedido|Order summary/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /Resumen del pedido/i })).toBeInTheDocument();
     });
 
-    await user.click(screen.getByRole("button", { name: /Resumen del pedido|Order summary/i }));
+    const summary = screen.getByRole("button", { name: /Resumen del pedido/i });
+    fireEvent.click(summary);
 
-    expect(screen.getByText(/Camiseta/)).toBeInTheDocument();
+    expect(summary).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByText(/Camiseta Básica/)).toBeInTheDocument();
     expect(screen.getByText(/Calle Central/)).toBeInTheDocument();
   });
 
@@ -124,5 +122,6 @@ describe("PaymentPage", () => {
     });
 
     expect(screen.queryByText(/Siguiente paso|Next step/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Upload proof|Subir comprobante/i)).not.toBeInTheDocument();
   });
 });

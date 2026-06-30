@@ -1,1 +1,1 @@
-export { resolvePublicLogoUrl, shouldProxyBlobUrl } from "@shared/imageUrl";
+export { resolvePublicLogoUrl, shouldProxyBlobUrl, hasCustomLogo } from "@shared/imageUrl";

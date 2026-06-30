@@ -4,6 +4,7 @@ import type {
   StoreSettingsData,
 } from "../../shared/storeSettings.types.js";
 import type { Locale } from "../../shared/types.js";
+import { resolvePublicLogoUrl as resolvePublicLogoUrlShared } from "../../shared/imageUrl.js";
 import { getSql } from "./db.js";
 
 export type StoreSettingsRow = {
@@ -14,6 +15,11 @@ export type StoreSettingsRow = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const HEX_COLOR_RE = /^#[0-9A-Fa-f]{6}$/;
+
+export function resolvePublicLogoUrl(logoUrl: string): string {
+  const blobAccess = process.env.BLOB_ACCESS === "public" ? "public" : "private";
+  return resolvePublicLogoUrlShared(logoUrl, blobAccess);
+}
 
 export function defaultStoreSettings(): StoreSettingsData {
   const base = structuredClone(storeConfig);
@@ -38,15 +44,75 @@ function mergeLocalized(
   };
 }
 
-function mergeStringOrLocalized(
-  base: string,
-  patch: string | Partial<Record<Locale, string>> | undefined,
+type LegacyBankTransfer = {
+  instructions?: Partial<Record<Locale, string>>;
+  bankName?: string | Partial<Record<Locale, string>>;
+  accountName?: string;
+  accountNumber?: string;
+  accountType?: Partial<Record<Locale, string>>;
+  referenceHint?: Partial<Record<Locale, string>>;
+};
+
+function legacyBankInstructions(
+  bt: LegacyBankTransfer,
+  locale: Locale,
 ): string {
-  if (typeof patch === "string" && patch.trim()) return patch.trim();
-  if (patch && typeof patch === "object") {
-    return patch.es?.trim() || patch.en?.trim() || base;
+  const lines: string[] = [];
+  const bankName =
+    typeof bt.bankName === "string"
+      ? bt.bankName
+      : bt.bankName?.[locale] ?? bt.bankName?.es ?? "";
+  if (bankName.trim()) {
+    lines.push(locale === "es" ? `Banco: ${bankName.trim()}` : `Bank: ${bankName.trim()}`);
   }
-  return base;
+  if (bt.accountName?.trim()) {
+    lines.push(
+      locale === "es"
+        ? `Titular: ${bt.accountName.trim()}`
+        : `Account holder: ${bt.accountName.trim()}`,
+    );
+  }
+  if (bt.accountNumber?.trim()) {
+    lines.push(
+      locale === "es"
+        ? `Cuenta: ${bt.accountNumber.trim()}`
+        : `Account: ${bt.accountNumber.trim()}`,
+    );
+  }
+  const accountType = bt.accountType?.[locale] ?? bt.accountType?.es;
+  if (accountType?.trim()) {
+    lines.push(locale === "es" ? `Tipo: ${accountType.trim()}` : `Type: ${accountType.trim()}`);
+  }
+  return lines.join("\n");
+}
+
+function mergeBankTransferInstructions(
+  base: StoreSettingsData["payment"]["bankTransfer"],
+  stored?: LegacyBankTransfer | null,
+): Record<Locale, string> {
+  if (stored?.instructions) {
+    return mergeLocalized(base.instructions, stored.instructions);
+  }
+  if (
+    stored &&
+    (stored.bankName || stored.accountName || stored.accountNumber)
+  ) {
+    return {
+      es: legacyBankInstructions(stored, "es") || base.instructions.es,
+      en: legacyBankInstructions(stored, "en") || base.instructions.en,
+    };
+  }
+  return base.instructions;
+}
+
+function mergeBankTransfer(
+  base: StoreSettingsData["payment"]["bankTransfer"],
+  stored: LegacyBankTransfer | undefined,
+): StoreSettingsData["payment"]["bankTransfer"] {
+  return {
+    instructions: mergeBankTransferInstructions(base, stored),
+    referenceHint: mergeLocalized(base.referenceHint, stored?.referenceHint),
+  };
 }
 
 export function mergeStoreSettings(
@@ -91,29 +157,10 @@ export function mergeStoreSettings(
     },
     payment: {
       provider: base.payment.provider,
-      bankTransfer: {
-        bankName: mergeStringOrLocalized(
-          base.payment.bankTransfer.bankName,
-          stored.payment?.bankTransfer?.bankName as
-            | string
-            | Partial<Record<Locale, string>>
-            | undefined,
-        ),
-        accountName:
-          stored.payment?.bankTransfer?.accountName?.trim() ||
-          base.payment.bankTransfer.accountName,
-        accountNumber:
-          stored.payment?.bankTransfer?.accountNumber?.trim() ||
-          base.payment.bankTransfer.accountNumber,
-        accountType: mergeLocalized(
-          base.payment.bankTransfer.accountType,
-          stored.payment?.bankTransfer?.accountType,
-        ),
-        referenceHint: mergeLocalized(
-          base.payment.bankTransfer.referenceHint,
-          stored.payment?.bankTransfer?.referenceHint,
-        ),
-      },
+      bankTransfer: mergeBankTransfer(
+        base.payment.bankTransfer,
+        stored.payment?.bankTransfer as LegacyBankTransfer | undefined,
+      ),
     },
     orderStatuses: base.orderStatuses,
     defaultOrderStatus: base.defaultOrderStatus,
@@ -125,6 +172,7 @@ export function toPublicStoreSettings(config: StoreSettingsData): PublicStoreSet
   void email;
   return {
     ...rest,
+    logoUrl: resolvePublicLogoUrl(rest.logoUrl),
     contact: {
       whatsappCountryCode: contact.whatsappCountryCode,
       whatsappNumber: contact.whatsappNumber,
@@ -147,8 +195,8 @@ export function validateStoreSettings(input: unknown): StoreSettingsData {
   if (!merged.email.from.trim()) throw new Error("invalid_email_from");
   if (!EMAIL_RE.test(merged.contact.ownerEmail)) throw new Error("invalid_owner_email");
   if (!merged.contact.whatsappNumber.trim()) throw new Error("invalid_whatsapp_number");
-  if (!merged.payment.bankTransfer.accountName.trim()) throw new Error("invalid_account_name");
-  if (!merged.payment.bankTransfer.accountNumber.trim()) throw new Error("invalid_account_number");
+  if (!merged.payment.bankTransfer.instructions.es.trim()) throw new Error("invalid_bank_instructions");
+  if (!merged.payment.bankTransfer.instructions.en.trim()) throw new Error("invalid_bank_instructions");
 
   return merged;
 }

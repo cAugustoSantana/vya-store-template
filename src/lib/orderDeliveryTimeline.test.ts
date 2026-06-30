@@ -14,14 +14,15 @@ describe("buildDeliverySteps", () => {
     expect(steps[2]?.state).toBe("pending");
   });
 
-  it("activates out for delivery when order is confirmed", () => {
+  it("keeps delivery pending when payment is confirmed", () => {
     const steps = buildDeliverySteps({ estado: "confirmed", createdAt });
-    expect(steps[1]?.state).toBe("active");
+    expect(steps[1]?.state).toBe("pending");
+    expect(steps[2]?.state).toBe("pending");
   });
 
-  it("activates delivered when order is out for delivery", () => {
+  it("activates out for delivery when status is out_for_delivery", () => {
     const steps = buildDeliverySteps({ estado: "out_for_delivery", createdAt });
-    expect(steps[1]?.state).toBe("complete");
+    expect(steps[1]?.state).toBe("active");
     expect(steps[2]?.state).toBe("active");
   });
 

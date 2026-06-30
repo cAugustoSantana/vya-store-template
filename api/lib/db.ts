@@ -1,12 +1,10 @@
 import { neon } from "@neondatabase/serverless";
+import { requireEnv, resolveEnv } from "./env.js";
 
 let sql: ReturnType<typeof neon> | null = null;
 
 export function getSql() {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error("DATABASE_URL is not configured");
-  }
+  const url = requireEnv("DATABASE_URL", "POSTGRES_URL");
   if (!sql) {
     sql = neon(url);
   }
@@ -14,5 +12,5 @@ export function getSql() {
 }
 
 export function hasDatabase(): boolean {
-  return Boolean(process.env.DATABASE_URL);
+  return Boolean(resolveEnv("DATABASE_URL", "POSTGRES_URL"));
 }

@@ -1,47 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { buildHomeSocialMeta, buildProductSocialMeta, socialMetaToHtml } from "./socialMeta";
+import { buildSocialMetaDocument, escapeHtml, toAbsoluteUrl } from "./socialMeta";
 
-describe("buildHomeSocialMeta", () => {
-  it("builds home tags with logo image", () => {
-    const meta = buildHomeSocialMeta({
-      origin: "https://example.com",
-      storeName: { es: "Mi Tienda", en: "My Store" },
-      description: { es: "Desc", en: "Desc EN" },
-      locale: "es",
-      defaultLocale: "es",
-    });
-    expect(meta.title).toBe("Mi Tienda");
-    expect(meta.image).toBe("https://example.com/api/settings/logo");
-    expect(meta.url).toBe("https://example.com");
+describe("socialMeta", () => {
+  it("escapes HTML in meta output", () => {
+    expect(escapeHtml(`Tom & Jerry "shop"`)).toBe("Tom &amp; Jerry &quot;shop&quot;");
   });
-});
 
-describe("buildProductSocialMeta", () => {
-  it("proxies private blob images", () => {
-    const meta = buildProductSocialMeta({
-      origin: "https://example.com",
-      productId: "prod-1",
-      productName: { es: "Camiseta", en: "Shirt" },
-      productDescription: { es: "Algodón", en: "Cotton" },
-      imageUrl: "https://abc.blob.vercel-storage.com/p.png",
-      locale: "es",
-      defaultLocale: "es",
-    });
-    expect(meta.image).toBe("https://example.com/api/products/prod-1/image");
-    expect(meta.url).toContain("/products/prod-1");
+  it("builds absolute URLs from paths", () => {
+    expect(toAbsoluteUrl("https://example.com", "/api/products/1/image")).toBe(
+      "https://example.com/api/products/1/image",
+    );
   });
-});
 
-describe("socialMetaToHtml", () => {
-  it("renders og tags", () => {
-    const html = socialMetaToHtml({
-      title: "Test",
-      description: "Desc",
-      image: "https://example.com/logo.png",
-      url: "https://example.com",
-      type: "website",
+  it("includes og tags in bot document", () => {
+    const html = buildSocialMetaDocument({
+      title: "Abanico Portada",
+      description: "Abanico Portada",
+      url: "https://example.com/products/Cuero001",
+      image: "https://example.com/api/products/Cuero001/image",
+      type: "product",
+      siteName: "Cuero",
     });
-    expect(html).toContain('property="og:title"');
-    expect(html).toContain("Test");
+
+    expect(html).toContain('property="og:title" content="Abanico Portada"');
+    expect(html).toContain('property="og:image" content="https://example.com/api/products/Cuero001/image"');
+    expect(html).toContain('property="og:type" content="product"');
   });
 });

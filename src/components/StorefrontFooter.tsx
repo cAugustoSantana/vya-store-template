@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowRight, InstagramLogo, WhatsappLogo } from "@phosphor-icons/react";
 import { useStoreConfig } from "@/context/StoreSettingsContext";
 import { getLocalized } from "@/lib/localized";
-import { resolvePublicLogoUrl } from "@/lib/logoUrl";
+import { resolvePublicLogoUrl, hasCustomLogo } from "@/lib/logoUrl";
 import type { Locale } from "@shared/types";
 
 function whatsAppUrl(countryCode: string, number: string): string {
@@ -11,17 +11,24 @@ function whatsAppUrl(countryCode: string, number: string): string {
   return `https://wa.me/${digits}`;
 }
 
-export function StorefrontFooter() {
+type StorefrontFooterProps = {
+  className?: string;
+};
+
+export function StorefrontFooter({ className = "" }: StorefrontFooterProps) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language as Locale;
   const year = new Date().getFullYear();
   const settings = useStoreConfig();
   const storeName = getLocalized(settings.storeName, locale);
   const logoSrc = resolvePublicLogoUrl(settings.logoUrl);
+  const showStoreName = !hasCustomLogo(settings.logoUrl);
   const waUrl = whatsAppUrl(settings.contact.whatsappCountryCode, settings.contact.whatsappNumber);
 
   return (
-    <footer className="mt-auto shrink-0 border-t border-gray-200/80 bg-white print:hidden">
+    <footer
+      className={`mt-auto shrink-0 border-t border-gray-200/80 bg-white print:hidden ${className}`.trimEnd()}
+    >
       <section className="border-b border-brand-500/20 bg-gradient-to-br from-brand-600 via-brand-600 to-brand-700 text-white">
         <div className="mx-auto flex max-w-[1440px] flex-col items-center gap-4 px-4 py-5 text-center md:flex-row md:justify-between md:text-left lg:px-8 lg:py-6">
           <div className="max-w-xl">
@@ -33,7 +40,7 @@ export function StorefrontFooter() {
             </p>
           </div>
           <a
-            href="#"
+            href="https://vya.do"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-brand-700 shadow-lg shadow-brand-900/20 transition-transform hover:-translate-y-0.5 hover:bg-brand-50"
@@ -52,7 +59,7 @@ export function StorefrontFooter() {
             className="h-8 w-8 rounded-lg object-contain"
           />
           <span className="text-sm font-bold text-gray-500">
-            {storeName} © {year}
+            {showStoreName ? `${storeName} © ${year}` : `© ${year}`}
           </span>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">

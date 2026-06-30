@@ -4,7 +4,7 @@ import { ShoppingCart } from "@phosphor-icons/react";
 import { useStoreConfig } from "@/context/StoreSettingsContext";
 import { useCart } from "@/context/CartContext";
 import { getLocalized } from "@/lib/localized";
-import { resolvePublicLogoUrl } from "@/lib/logoUrl";
+import { resolvePublicLogoUrl, hasCustomLogo } from "@/lib/logoUrl";
 import type { Locale } from "@shared/types";
 
 export function StorefrontHeader() {
@@ -15,6 +15,7 @@ export function StorefrontHeader() {
   const itemCount = lines.reduce((sum, line) => sum + line.quantity, 0);
   const logoSrc = resolvePublicLogoUrl(settings.logoUrl);
   const storeName = getLocalized(settings.storeName, locale);
+  const showStoreName = !hasCustomLogo(settings.logoUrl);
 
   return (
     <header className="sticky top-0 z-50 shrink-0 border-b border-gray-200/80 bg-white shadow-sm shadow-gray-100/50 print:hidden">
@@ -25,9 +26,11 @@ export function StorefrontHeader() {
             alt={storeName}
             className="h-8 w-8 shrink-0 rounded-lg object-contain"
           />
-          <span className="truncate text-base font-bold tracking-tight text-gray-900">
-            {storeName}
-          </span>
+          {showStoreName && (
+            <span className="truncate text-base font-bold tracking-tight text-gray-900">
+              {storeName}
+            </span>
+          )}
         </Link>
 
         <div className="flex shrink-0 items-center gap-2">

@@ -1,21 +1,20 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { hasDatabase } from "../../lib/db.js";
 import { requireAdmin } from "../../lib/auth.js";
-import {
-  deactivateProduct,
-  getProductById,
-  updateProduct,
-} from "../../lib/products.js";
+import { deleteProduct, getProductById, updateProduct } from "../../lib/products.js";
+import { normalizeVariantsInput } from "../../../shared/productVariants.js";
 import { json, methodNotAllowed, readJsonBody } from "../../lib/http.js";
 
 type UpdateProductBody = {
-  name?: Record<string, string>;
-  description?: Record<string, string>;
+  name?: string | Record<string, string>;
+  description?: string | Record<string, string>;
   price?: number;
   imageUrl?: string;
   variantOptions?: Record<string, unknown>;
+  variants?: unknown;
   active?: boolean;
   sortOrder?: number;
+  stockQuantity?: number;
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -44,7 +43,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (body.price != null && body.price < 0) {
         return json(res, 400, { error: "invalid_price" });
       }
-      const product = await updateProduct(id, body);
+      if (
+        body.stockQuantity != null &&
+        (body.stockQuantity < 0 || !Number.isInteger(body.stockQuantity))
+      ) {
+        return json(res, 400, { error: "invalid_stock" });
+      }
+      const product = await updateProduct(id, {
+        ...body,
+        variants: body.variants !== undefined ? normalizeVariantsInput(body.variants) : undefined,
+      });
       if (!product) {
         return json(res, 404, { error: "product_not_found" });
       }
@@ -52,11 +60,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (req.method === "DELETE") {
-      const product = await deactivateProduct(id);
-      if (!product) {
+      const deleted = await deleteProduct(id);
+      if (!deleted) {
         return json(res, 404, { error: "product_not_found" });
       }
-      return json(res, 200, { product });
+      return json(res, 200, { ok: true, id });
     }
 
     return methodNotAllowed(res);

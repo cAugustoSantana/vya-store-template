@@ -5,6 +5,7 @@ export type LocalizedString = Record<Locale, string>;
 export type OrderStatus =
   | "payment_confirmation_pending"
   | "confirmed"
+  | "in_production"
   | "out_for_delivery"
   | "delivered"
   | "cancelled";

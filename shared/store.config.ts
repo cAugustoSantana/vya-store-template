@@ -1,10 +1,10 @@
-import type { Locale, OrderStatus, PaymentProvider } from "./types";
+import type { Locale, OrderStatus, PaymentProvider } from "./types.js";
 export type {
   Product,
   LocalizedField,
   VariantGroup,
   VariantValue,
-} from "./product.types";
+} from "./product.types.js";
 
 export const storeConfig = {
   storeSlug: "MITIENDA",
@@ -30,10 +30,20 @@ export const storeConfig = {
   payment: {
     provider: "bank_transfer_proof" as PaymentProvider,
     bankTransfer: {
-      bankName: "Banco Popular",
-      accountName: "Mi Tienda SRL",
-      accountNumber: "1234567890",
-      accountType: { es: "Ahorros", en: "Savings" },
+      instructions: {
+        es: `Banco: Banco Popular
+Titular: Mi Tienda SRL
+Cuenta: 1234567890
+Tipo: Ahorros
+
+Usa tu número de pedido como referencia de transferencia`,
+        en: `Bank: Banco Popular
+Account holder: Mi Tienda SRL
+Account: 1234567890
+Type: Savings
+
+Use your order number as the transfer reference`,
+      },
       referenceHint: {
         es: "Usa tu número de pedido como referencia de transferencia",
         en: "Use your order number as the transfer reference",
@@ -43,6 +53,7 @@ export const storeConfig = {
   orderStatuses: [
     "payment_confirmation_pending",
     "confirmed",
+    "in_production",
     "out_for_delivery",
     "delivered",
     "cancelled",

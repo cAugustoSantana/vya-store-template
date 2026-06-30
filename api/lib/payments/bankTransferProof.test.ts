@@ -12,14 +12,15 @@ describe("bankTransferProof", () => {
   it("returns bank transfer instructions for locale", async () => {
     const instructions = await getPaymentInstructions("es");
     expect(instructions.provider).toBe("bank_transfer_proof");
-    expect(instructions.bankTransfer.accountNumber).toBe("1234567890");
-    expect(instructions.bankTransfer.bankName).toBeTruthy();
+    expect(instructions.bankTransfer.instructions).toContain("1234567890");
+    expect(instructions.bankTransfer.instructions).toBeTruthy();
   });
 
-  it("localizes account type by locale", async () => {
+  it("localizes instructions by locale", async () => {
     const es = await getPaymentInstructions("es");
     const en = await getPaymentInstructions("en");
-    expect(es.bankTransfer.accountType).not.toBe(en.bankTransfer.accountType);
+    expect(es.bankTransfer.instructions).toContain("Banco:");
+    expect(en.bankTransfer.instructions).toContain("Bank:");
   });
 
   it("throws for unconfigured stripe/azul providers", () => {

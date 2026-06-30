@@ -29,6 +29,7 @@ function mapValidationError(err: unknown): { status: number; error: string } {
     "invalid_quantity",
     "missing_variant",
     "invalid_variant",
+    "insufficient_stock",
     "invalid_json",
   ]);
   if (clientErrors.has(message)) {

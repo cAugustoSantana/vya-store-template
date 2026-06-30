@@ -16,8 +16,9 @@ export type DeliveryStep = {
 const FULFILLMENT_RANK: Record<string, number> = {
   payment_confirmation_pending: 0,
   confirmed: 1,
-  out_for_delivery: 2,
-  delivered: 3,
+  in_production: 2,
+  out_for_delivery: 3,
+  delivered: 4,
   cancelled: 0,
 };
 
@@ -43,11 +44,11 @@ export function buildDeliverySteps(
     {
       key: "out_for_delivery",
       state:
-        rank >= 2 ? "complete" : rank === 1 ? "active" : "pending",
+        rank >= 4 ? "complete" : rank === 3 ? "active" : rank >= 1 ? "pending" : "pending",
     },
     {
       key: "delivered",
-      state: rank >= 3 ? "complete" : rank === 2 ? "active" : "pending",
+      state: rank >= 4 ? "complete" : rank === 3 ? "active" : "pending",
     },
   ];
 

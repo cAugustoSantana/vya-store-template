@@ -69,5 +69,7 @@ Use `npm start` (not `npm run dev`) so `/api/*` routes and env vars are availabl
 | Symptom | Likely cause |
 |---------|----------------|
 | Upload fails immediately | Missing `BLOB_READ_WRITE_TOKEN` |
+| `Cannot use private access on a public store` | Set `BLOB_ACCESS=public`, or redeploy after the auto-detect fix |
+| `Cannot use public access on a private store` | Remove `BLOB_ACCESS=public` or set `BLOB_ACCESS=private` |
 | Admin cannot view proof | Expired admin JWT; re-login at `/admin` |
 | 413 / size error | Image too large; compress screenshot |

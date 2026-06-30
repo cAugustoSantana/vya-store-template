@@ -7,8 +7,8 @@ import type { Product } from "../../shared/product.types.js";
 
 const mockProduct: Product = {
   id: "prod-1",
-  name: { es: "Camiseta Básica", en: "Basic T-shirt" },
-  description: { es: "Desc", en: "Desc" },
+  name: "Camiseta Básica",
+  description: "Desc",
   price: 1500,
   imageUrl: "/products/prod-1.svg",
   variantOptions: {
@@ -30,6 +30,7 @@ const mockProduct: Product = {
     },
   },
   active: true,
+  stockQuantity: 100,
 };
 
 const lookup = async (id: string) => (id === "prod-1" ? mockProduct : null);
@@ -162,6 +163,69 @@ describe("validateCheckout", () => {
         lookup,
       ),
     ).rejects.toThrow("invalid_quantity");
+  });
+
+  it("rejects quantity above available stock", async () => {
+    const lowStockLookup = async (id: string) =>
+      id === "prod-1" ? { ...mockProduct, stockQuantity: 5 } : null;
+
+    await expect(
+      validateCheckout(
+        {
+          ...validCheckout,
+          items: [{ ...validItem, quantity: 6 }],
+        },
+        lowStockLookup,
+      ),
+    ).rejects.toThrow("insufficient_stock");
+  });
+
+  it("rejects quantity above variant stock", async () => {
+    const variantLookup = async (id: string) =>
+      id === "prod-1"
+        ? {
+            ...mockProduct,
+            stockQuantity: 100,
+            variants: [
+              {
+                key: "color:black|size:m",
+                options: { size: "m", color: "black" },
+                price: null,
+                stockQuantity: 2,
+              },
+            ],
+          }
+        : null;
+
+    await expect(
+      validateCheckout(
+        {
+          ...validCheckout,
+          items: [{ ...validItem, quantity: 3 }],
+        },
+        variantLookup,
+      ),
+    ).rejects.toThrow("insufficient_stock");
+  });
+
+  it("uses variant price when set", async () => {
+    const variantLookup = async (id: string) =>
+      id === "prod-1"
+        ? {
+            ...mockProduct,
+            variants: [
+              {
+                key: "color:black|size:m",
+                options: { size: "m", color: "black" },
+                price: 1800,
+                stockQuantity: 10,
+              },
+            ],
+          }
+        : null;
+
+    const result = await validateCheckout(validCheckout, variantLookup);
+    expect(result.lines[0]?.unitPrice).toBe(1800);
   });
 });
 

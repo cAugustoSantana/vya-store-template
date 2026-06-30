@@ -6,7 +6,6 @@ import type { Locale } from "@shared/types";
 import { useCart } from "@/context/CartContext";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
 import { postCheckout } from "@/lib/api";
-import { getLocalized } from "@/lib/localized";
 import { formatMoney } from "@/lib/format";
 import { StorefrontHeader } from "@/components/StorefrontHeader";
 import { StorefrontFooter } from "@/components/StorefrontFooter";
@@ -103,6 +102,8 @@ export function CheckoutPage() {
       const message = err instanceof Error ? err.message : "error";
       if (message === "rate_limit") {
         setSubmitError(t("errors.rateLimit"));
+      } else if (message === "insufficient_stock") {
+        setSubmitError(t("errors.insufficientStock"));
       } else {
         setSubmitError(t("common.error"));
       }
@@ -296,7 +297,7 @@ export function CheckoutPage() {
               <div className="mb-4 space-y-4">
                 {lines.map((line) => {
                   const product = getProduct(line.productId);
-                  const name = product ? getLocalized(product.name, locale) : line.productId;
+                  const name = product ? product.name : line.productId;
                   const unitPrice = product?.price ?? 0;
                   const lineTotal = unitPrice * line.quantity;
                   const variants = formatVariants(line.variants);

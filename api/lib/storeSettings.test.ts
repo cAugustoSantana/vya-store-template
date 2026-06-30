@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   defaultStoreSettings,
   mergeStoreSettings,
+  resolvePublicLogoUrl,
   toPublicStoreSettings,
   validateStoreSettings,
 } from "./storeSettings.js";
@@ -34,5 +35,18 @@ describe("storeSettings", () => {
     const pub = toPublicStoreSettings(config);
     expect(pub).not.toHaveProperty("email");
     expect(pub.contact).not.toHaveProperty("ownerEmail");
+  });
+
+  it("maps private blob logos to the public logo route", () => {
+    const original = process.env.BLOB_ACCESS;
+    process.env.BLOB_ACCESS = "private";
+    expect(
+      resolvePublicLogoUrl("https://abc.private.blob.vercel-storage.com/store/logo.png"),
+    ).toBe("/api/settings/logo");
+    process.env.BLOB_ACCESS = "public";
+    expect(
+      resolvePublicLogoUrl("https://abc.public.blob.vercel-storage.com/store/logo.png"),
+    ).toBe("https://abc.public.blob.vercel-storage.com/store/logo.png");
+    process.env.BLOB_ACCESS = original;
   });
 });

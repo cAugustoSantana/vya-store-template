@@ -134,30 +134,19 @@ export function PaymentPage() {
             <Bank size={20} weight="bold" className="text-brand-600" aria-hidden />
             <h2 className="text-base font-bold text-gray-900">{t("payment.bankDetails")}</h2>
           </div>
-          <dl className="space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="font-medium text-gray-500">{t("payment.bankName")}</dt>
-              <dd className="font-semibold text-gray-900">{bt.bankName}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-medium text-gray-500">{t("payment.accountName")}</dt>
-              <dd className="truncate font-semibold text-gray-900">{bt.accountName}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-medium text-gray-500">{t("payment.accountNumber")}</dt>
-              <dd className="font-semibold text-gray-900">{bt.accountNumber}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-medium text-gray-500">{t("payment.accountType")}</dt>
-              <dd className="font-semibold text-gray-900">{bt.accountType}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="font-medium text-gray-500">{t("payment.reference")}</dt>
-              <dd className="text-right font-semibold text-gray-900">{bt.referenceHint}</dd>
-            </div>
+          <div className="whitespace-pre-wrap text-sm font-medium leading-relaxed text-gray-900">
+            {bt.instructions}
+          </div>
+          <dl className="mt-4 space-y-2 border-t border-gray-100 pt-4 text-sm">
+            {bt.referenceHint ? (
+              <div className="flex justify-between gap-4">
+                <dt className="text-gray-500">{t("payment.reference")}</dt>
+                <dd className="text-right font-semibold text-gray-900">{bt.referenceHint}</dd>
+              </div>
+            ) : null}
             <div className="flex justify-between gap-4 border-t border-gray-100 pt-2">
-              <dt className="font-medium text-gray-500">{t("payment.total")}</dt>
-              <dd className="font-bold text-brand-600">{totalFormatted}</dd>
+              <dt className="font-medium text-gray-700">{t("payment.total")}</dt>
+              <dd className="text-lg font-extrabold text-brand-600">{totalFormatted}</dd>
             </div>
           </dl>
           <p className="mt-3 text-xs text-gray-400">{t("payment.leaveHint")}</p>

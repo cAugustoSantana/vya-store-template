@@ -14,6 +14,7 @@ const sampleRow: ProductRow = {
   variant_options: { size: { label: { es: "Talla", en: "Size" }, values: {} } },
   active: true,
   sort_order: 0,
+  stock_quantity: 25,
   created_at: "2026-01-01T00:00:00.000Z",
   updated_at: "2026-01-01T00:00:00.000Z",
 };
@@ -24,6 +25,7 @@ describe("rowToProduct", () => {
     expect(product.id).toBe("prod-1");
     expect(product.price).toBe(1500);
     expect(product.imageUrl).toBe("/products/prod-1.svg");
-    expect(product.name.es).toBe("Camiseta");
+    expect(product.name).toBe("Camiseta");
+    expect(product.stockQuantity).toBe(25);
   });
 });

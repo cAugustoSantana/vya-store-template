@@ -1,4 +1,4 @@
--- E-commerce template schema
+ -- E-commerce template schema
 -- Run once per Neon branch (dev / prod / CI). Safe to re-run: uses IF NOT EXISTS.
 
 CREATE TABLE IF NOT EXISTS orders (
@@ -60,8 +60,10 @@ CREATE TABLE IF NOT EXISTS products (
   price NUMERIC(12, 2) NOT NULL CHECK (price >= 0),
   image_url TEXT NOT NULL,
   variant_options JSONB NOT NULL DEFAULT '{}'::jsonb,
+  variants JSONB NOT NULL DEFAULT '[]'::jsonb,
   active BOOLEAN NOT NULL DEFAULT true,
   sort_order INT NOT NULL DEFAULT 0,
+  stock_quantity INT NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   CONSTRAINT products_id_not_empty CHECK (char_length(trim(id)) > 0)
@@ -71,6 +73,8 @@ CREATE INDEX IF NOT EXISTS products_active_sort_idx ON products (active, sort_or
 
 COMMENT ON TABLE products IS 'Store catalog; name/description are localized JSONB { es, en }';
 COMMENT ON COLUMN products.variant_options IS 'Variant groups JSON matching shared Product.variantOptions shape';
+COMMENT ON COLUMN products.variants IS 'Per option-combination price/stock rows; empty uses product-level stock only';
+COMMENT ON COLUMN products.stock_quantity IS 'Units available for sale; sum of variants or product-level stock';
 
 CREATE TABLE IF NOT EXISTS store_settings (
   id SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),

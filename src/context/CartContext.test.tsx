@@ -20,6 +20,10 @@ describe("CartContext", () => {
   it("adds lines and opens drawer", async () => {
     const { result } = renderHook(() => useCart(), { wrapper });
     await waitFor(() => expect(result.current.total).toBe(0));
+    await waitFor(() => expect(result.current.lines.length).toBe(0));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     act(() => {
       result.current.addLine({
         productId: "prod-1",

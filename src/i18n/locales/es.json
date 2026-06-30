@@ -13,7 +13,8 @@
     "title": "Catálogo",
     "subtitle": "Explora productos y abre los detalles para personalizar tu pedido",
     "addToOrder": "Agregar al pedido",
-    "quantity": "Cantidad"
+    "quantity": "Cantidad",
+    "outOfStock": "Agotado"
   },
   "footer": {
     "template": {
@@ -43,9 +44,11 @@
     "shippingPolicy": "Política de envío",
     "termsOfService": "Términos de servicio",
     "contactSupport": "Contactar soporte",
-    "thumbnail": "Imagen {{index}}",
+    "viewFullImage": "Ver imagen completa",
     "decreaseQty": "Disminuir cantidad",
-    "increaseQty": "Aumentar cantidad"
+    "increaseQty": "Aumentar cantidad",
+    "soldOut": "Agotado",
+    "unitsAvailable": "{{count}} disponibles"
   },
   "cart": {
     "title": "Tu pedido",
@@ -123,6 +126,7 @@
   "orderStatus": {
     "payment_confirmation_pending": "Confirmación de pago pendiente",
     "confirmed": "Confirmado",
+    "in_production": "En producción",
     "out_for_delivery": "En camino",
     "delivered": "Entregado",
     "cancelled": "Cancelado"
@@ -161,6 +165,7 @@
       "title": "Configuración de la tienda",
       "subtitle": "Configura metadatos de la tienda, contacto y datos de transferencia bancaria.",
       "save": "Guardar configuración",
+      "savedSuccess": "Configuración guardada correctamente.",
       "saved": "Configuración guardada correctamente",
       "lastSaved": "Última guardada: {{date}}",
       "storeSection": "Identidad de la tienda",
@@ -179,11 +184,10 @@
       "whatsappCountryCode": "Código de país WhatsApp",
       "whatsappNumber": "Número WhatsApp",
       "instagramUrl": "URL de Instagram",
-      "bankName": "Nombre del banco",
-      "accountName": "Titular de la cuenta",
-      "accountNumber": "Número de cuenta",
-      "accountTypeEs": "Tipo de cuenta (ES)",
-      "accountTypeEn": "Tipo de cuenta (EN)",
+      "bankInstructions": "Instrucciones de pago (cuentas, nombres, números)",
+      "instructionsEs": "Instrucciones de transferencia (ES)",
+      "instructionsEn": "Instrucciones de transferencia (EN)",
+      "instructionsPlaceholder": "Banco:\nTitular:\nCuenta:\nTipo:\n\nReferencia de transferencia…",
       "referenceHintEs": "Referencia de transferencia (ES)",
       "referenceHintEn": "Referencia de transferencia (EN)"
     },
@@ -195,6 +199,7 @@
       "empty": "No hay productos todavía",
       "id": "ID",
       "name": "Nombre",
+      "description": "Descripción",
       "nameEs": "Nombre (ES)",
       "nameEn": "Nombre (EN)",
       "descEs": "Descripción (ES)",
@@ -202,7 +207,13 @@
       "active": "Activo",
       "yes": "Sí",
       "no": "No",
-      "sortOrder": "Orden",
+      "price": "Precio",
+      "stockQuantity": "Cantidad disponible",
+      "variantInventory": "Inventario por variante",
+      "variantInventoryHint": "Define precio y stock para cada combinación. Deja el precio vacío para usar el precio base del producto.",
+      "variantName": "Variante",
+      "available": "Disponible",
+      "totalInventory": "Inventario total: {{count}} disponibles",
       "variants": "Variantes",
       "variantsHint": "Agrega opciones como talla o color. Las claves se guardan en minúsculas (ej. size, m, black).",
       "noVariants": "Sin variantes todavía. Agrega una si el cliente debe elegir opciones antes de pedir.",
@@ -222,6 +233,9 @@
       "image": "Imagen del producto",
       "save": "Guardar producto",
       "back": "Volver a productos",
+      "delete": "Eliminar",
+      "deleteConfirm": "¿Eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+      "actions": "Acciones",
       "errors": {
         "missingId": "El ID del producto es obligatorio",
         "variant_group_key_required": "Cada variante necesita una clave (ej. size)",
@@ -229,7 +243,8 @@
         "variant_group_key_duplicate": "Clave de variante duplicada",
         "variant_value_key_invalid": "Las claves de opción deben empezar con letra y usar solo minúsculas, números, _ o -",
         "variant_value_key_duplicate": "Clave de opción duplicada en la misma variante",
-        "variant_group_needs_value": "Cada variante necesita al menos una opción"
+        "variant_group_needs_value": "Cada variante necesita al menos una opción",
+        "imageUploadFailed": "No se pudo subir la imagen. Inténtalo de nuevo."
       }
     },
     "timeline": {
@@ -260,6 +275,7 @@
     "cartEmpty": "Agrega productos al pedido"
   },
   "errors": {
-    "rateLimit": "Demasiados intentos. Espera unos minutos e intenta de nuevo."
+    "rateLimit": "Demasiados intentos. Espera unos minutos e intenta de nuevo.",
+    "insufficientStock": "Uno o más productos ya no tienen stock suficiente."
   }
 }

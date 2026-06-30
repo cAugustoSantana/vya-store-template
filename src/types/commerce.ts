@@ -43,10 +43,7 @@ export type PublicOrder = {
   payment: {
     provider: string;
     bankTransfer: {
-      bankName: string;
-      accountName: string;
-      accountNumber: string;
-      accountType: string;
+      instructions: string;
       referenceHint: string;
     };
   };

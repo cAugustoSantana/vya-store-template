@@ -6,11 +6,8 @@ import type { PublicStoreSettings } from "@shared/storeSettings.types";
 export const mockProducts: Product[] = [
   {
     id: "prod-1",
-    name: { es: "Camiseta Básica", en: "Basic T-shirt" },
-    description: {
-      es: "Algodón suave, corte regular",
-      en: "Soft cotton, regular fit",
-    },
+    name: "Camiseta Básica",
+    description: "Algodón suave, corte regular",
     price: 1500,
     imageUrl: "/products/prod-1.svg",
     variantOptions: {
@@ -33,14 +30,12 @@ export const mockProducts: Product[] = [
     },
     active: true,
     sortOrder: 0,
+    stockQuantity: 100,
   },
   {
     id: "prod-2",
-    name: { es: "Gorra Logo", en: "Logo Cap" },
-    description: {
-      es: "Gorra ajustable con logo bordado",
-      en: "Adjustable cap with embroidered logo",
-    },
+    name: "Gorra Logo",
+    description: "Gorra ajustable con logo bordado",
     price: 900,
     imageUrl: "/products/prod-2.svg",
     variantOptions: {
@@ -54,6 +49,7 @@ export const mockProducts: Product[] = [
     },
     active: true,
     sortOrder: 1,
+    stockQuantity: 100,
   },
 ];
 

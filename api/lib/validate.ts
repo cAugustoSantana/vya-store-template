@@ -4,6 +4,12 @@ import { getStoreConfig } from "./storeSettings.js";
 import { getProductById } from "./products.js";
 import type { Product } from "../../shared/product.types.js";
 import type { StoreSettingsData } from "../../shared/storeSettings.types.js";
+import {
+  buildVariantKey,
+  hasVariantInventory,
+  resolveProductLinePrice,
+  variantStock,
+} from "../../shared/productVariants.js";
 
 export type CartLineInput = {
   productId: string;
@@ -129,6 +135,7 @@ export async function validateCheckout(
   }
 
   const lines: ValidatedCartLine[] = [];
+  const qtyByVariant = new Map<string, number>();
   let total = 0;
 
   for (const item of input.items) {
@@ -141,13 +148,23 @@ export async function validateCheckout(
     }
 
     const variants = validateVariants(product, item.variants ?? {});
-    const unitPrice = product.price;
+    const variantKey = hasVariantInventory(product)
+      ? `${product.id}:${buildVariantKey(variants)}`
+      : product.id;
+    const stock = variantStock(product, variants);
+    const requested = (qtyByVariant.get(variantKey) ?? 0) + qty;
+    if (requested > stock) {
+      throw new Error("insufficient_stock");
+    }
+    qtyByVariant.set(variantKey, requested);
+
+    const unitPrice = resolveProductLinePrice(product, variants);
     const lineTotal = unitPrice * qty;
     total += lineTotal;
 
     lines.push({
       productId: product.id,
-      productName: product.name[input.locale] ?? product.name[config.defaultLocale],
+      productName: product.name,
       variants,
       quantity: qty,
       unitPrice,

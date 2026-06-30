@@ -1,14 +1,19 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { fetchAdminProducts } from "@/lib/api";
-import { formatMoney } from "@/lib/format";
+import { fetchAdminProducts, deleteAdminProduct } from "@/lib/api";
 import {
   AdminButton,
-  AdminEmpty,
+  AdminEmptyState,
+  AdminError,
+  AdminLinkButton,
   AdminPageHeader,
   AdminTable,
+  adminTdClass,
+  adminThClass,
+  adminTrClass,
 } from "@/components/admin/AdminUi";
+import { formatMoney } from "@/lib/format";
 import type { Locale } from "@shared/types";
 import type { Product } from "@shared/product.types";
 
@@ -21,6 +26,7 @@ export function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,51 +47,75 @@ export function AdminProductsPage() {
     };
   }, [token]);
 
+  const handleDelete = async (product: Product) => {
+    const name = product.name;
+    if (!window.confirm(t("admin.products.deleteConfirm", { name }))) return;
+
+    setDeletingId(product.id);
+    setError(null);
+    try {
+      await deleteAdminProduct(token, product.id);
+      setProducts((current) => current.filter((item) => item.id !== product.id));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "error");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <>
       <AdminPageHeader
         title={t("admin.products.title")}
-        actions={
-          <Link to="/admin/products/new">
-            <AdminButton>{t("admin.products.add")}</AdminButton>
-          </Link>
+        action={
+          <AdminLinkButton to="/admin/products/new">{t("admin.products.add")}</AdminLinkButton>
         }
       />
 
-      {loading && <p className="text-sm text-gray-500">{t("common.loading")}</p>}
-      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+      {loading ? <p className="text-sm text-gray-500">{t("common.loading")}</p> : null}
+      {error ? <AdminError>{error}</AdminError> : null}
 
       {!loading && products.length === 0 ? (
-        <AdminEmpty>{t("admin.products.empty")}</AdminEmpty>
+        <AdminEmptyState>{t("admin.products.empty")}</AdminEmptyState>
       ) : (
         <AdminTable>
-          <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wider text-gray-500">
-            <tr>
-              <th className="px-4 py-3">{t("admin.products.id")}</th>
-              <th className="px-4 py-3">{t("admin.products.name")}</th>
-              <th className="px-4 py-3">{t("admin.total")}</th>
-              <th className="px-4 py-3">{t("admin.products.active")}</th>
-              <th className="px-4 py-3" aria-label={t("admin.viewDetails")} />
+          <thead>
+            <tr className="border-b border-gray-200 bg-gray-50/80">
+              <th className={adminThClass}>{t("admin.products.id")}</th>
+              <th className={adminThClass}>{t("admin.products.name")}</th>
+              <th className={adminThClass}>{t("admin.products.price")}</th>
+              <th className={adminThClass}>{t("admin.products.stockQuantity")}</th>
+              <th className={adminThClass}>{t("admin.products.active")}</th>
+              <th className={adminThClass}>{t("admin.products.actions")}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody>
             {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50/80">
-                <td className="px-4 py-3 font-mono text-xs text-gray-600">{product.id}</td>
-                <td className="px-4 py-3 font-medium text-gray-900">
-                  {product.name[locale] ?? product.name.es}
-                </td>
-                <td className="px-4 py-3 text-gray-700">{formatMoney(product.price, locale)}</td>
-                <td className="px-4 py-3 text-gray-600">
+              <tr key={product.id} className={adminTrClass}>
+                <td className={`${adminTdClass} font-mono text-xs text-gray-600`}>{product.id}</td>
+                <td className={`${adminTdClass} font-semibold`}>{product.name}</td>
+                <td className={adminTdClass}>{formatMoney(product.price, locale)}</td>
+                <td className={adminTdClass}>{product.stockQuantity ?? 0}</td>
+                <td className={adminTdClass}>
                   {product.active ? t("admin.products.yes") : t("admin.products.no")}
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    className="text-sm font-semibold text-brand-600 hover:text-brand-700"
-                    to={`/admin/products/${encodeURIComponent(product.id)}`}
-                  >
-                    {t("admin.viewDetails")}
-                  </Link>
+                <td className={adminTdClass}>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Link
+                      className="text-sm font-semibold text-brand-600 hover:text-brand-700 hover:underline"
+                      to={`/admin/products/${encodeURIComponent(product.id)}`}
+                    >
+                      {t("admin.viewDetails")}
+                    </Link>
+                    <AdminButton
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700"
+                      disabled={deletingId === product.id}
+                      onClick={() => void handleDelete(product)}
+                    >
+                      {t("admin.products.delete")}
+                    </AdminButton>
+                  </div>
                 </td>
               </tr>
             ))}

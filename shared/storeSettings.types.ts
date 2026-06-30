@@ -1,4 +1,4 @@
-import type { Locale, OrderStatus, PaymentProvider } from "./types";
+import type { Locale, OrderStatus, PaymentProvider } from "./types.js";
 
 export type LocalizedStoreField = Record<Locale, string>;
 
@@ -23,10 +23,7 @@ export type StoreSettingsData = {
   payment: {
     provider: PaymentProvider;
     bankTransfer: {
-      bankName: string;
-      accountName: string;
-      accountNumber: string;
-      accountType: LocalizedStoreField;
+      instructions: LocalizedStoreField;
       referenceHint: LocalizedStoreField;
     };
   };

@@ -1,4 +1,4 @@
-import type { Locale, OrderStatus, PaymentProofMethod, PaymentProvider } from "./types";
+import type { Locale, OrderStatus, PaymentProofMethod, PaymentProvider } from "./types.js";
 
 /** Database row types — mirror db/schema.sql */
 
@@ -37,13 +37,15 @@ export type OrderWithItems = OrderRow & {
 
 export type ProductRow = {
   id: string;
-  name: Record<Locale, string>;
-  description: Record<Locale, string>;
+  name: unknown;
+  description: unknown;
   price: string;
   image_url: string;
   variant_options: Record<string, unknown>;
+  variants?: unknown;
   active: boolean;
   sort_order: number;
+  stock_quantity: number;
   created_at: string;
   updated_at: string;
 };

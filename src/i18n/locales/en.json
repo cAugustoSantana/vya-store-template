@@ -13,7 +13,8 @@
     "title": "Catalog",
     "subtitle": "Browse products and open details to customize your order",
     "addToOrder": "Add to order",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "outOfStock": "Sold out"
   },
   "footer": {
     "template": {
@@ -43,9 +44,11 @@
     "shippingPolicy": "Shipping Policy",
     "termsOfService": "Terms of Service",
     "contactSupport": "Contact Support",
-    "thumbnail": "Image {{index}}",
+    "viewFullImage": "View full image",
     "decreaseQty": "Decrease quantity",
-    "increaseQty": "Increase quantity"
+    "increaseQty": "Increase quantity",
+    "soldOut": "Sold out",
+    "unitsAvailable": "{{count}} available"
   },
   "cart": {
     "title": "Your order",
@@ -123,6 +126,7 @@
   "orderStatus": {
     "payment_confirmation_pending": "Payment confirmation pending",
     "confirmed": "Confirmed",
+    "in_production": "In production",
     "out_for_delivery": "Out for delivery",
     "delivered": "Delivered",
     "cancelled": "Cancelled"
@@ -161,6 +165,7 @@
       "title": "Store settings",
       "subtitle": "Configure store metadata, contact, and bank transfer details.",
       "save": "Save settings",
+      "savedSuccess": "Settings saved successfully.",
       "saved": "Settings saved successfully",
       "lastSaved": "Last saved: {{date}}",
       "storeSection": "Store identity",
@@ -179,11 +184,10 @@
       "whatsappCountryCode": "WhatsApp country code",
       "whatsappNumber": "WhatsApp number",
       "instagramUrl": "Instagram URL",
-      "bankName": "Bank name",
-      "accountName": "Account holder",
-      "accountNumber": "Account number",
-      "accountTypeEs": "Account type (ES)",
-      "accountTypeEn": "Account type (EN)",
+      "bankInstructions": "Payment instructions (accounts, names, numbers)",
+      "instructionsEs": "Transfer instructions (ES)",
+      "instructionsEn": "Transfer instructions (EN)",
+      "instructionsPlaceholder": "Bank:\nAccount holder:\nAccount:\nType:\n\nTransfer reference…",
       "referenceHintEs": "Transfer reference hint (ES)",
       "referenceHintEn": "Transfer reference hint (EN)"
     },
@@ -195,6 +199,7 @@
       "empty": "No products yet",
       "id": "ID",
       "name": "Name",
+      "description": "Description",
       "nameEs": "Name (ES)",
       "nameEn": "Name (EN)",
       "descEs": "Description (ES)",
@@ -202,7 +207,13 @@
       "active": "Active",
       "yes": "Yes",
       "no": "No",
-      "sortOrder": "Sort order",
+      "price": "Price",
+      "stockQuantity": "Available quantity",
+      "variantInventory": "Variant inventory",
+      "variantInventoryHint": "Set price and stock for each combination. Leave price blank to use the base product price.",
+      "variantName": "Variant",
+      "available": "Available",
+      "totalInventory": "Total inventory: {{count}} available",
       "variants": "Variants",
       "variantsHint": "Add options like size or color. Keys are stored in lowercase (e.g. size, m, black).",
       "noVariants": "No variants yet. Add one if customers must pick options before ordering.",
@@ -222,6 +233,9 @@
       "image": "Product image",
       "save": "Save product",
       "back": "Back to products",
+      "delete": "Delete",
+      "deleteConfirm": "Delete \"{{name}}\"? This cannot be undone.",
+      "actions": "Actions",
       "errors": {
         "missingId": "Product ID is required",
         "variant_group_key_required": "Each variant needs a key (e.g. size)",
@@ -229,7 +243,8 @@
         "variant_group_key_duplicate": "Duplicate variant key",
         "variant_value_key_invalid": "Option keys must start with a letter and use only lowercase letters, numbers, _ or -",
         "variant_value_key_duplicate": "Duplicate option key in the same variant",
-        "variant_group_needs_value": "Each variant needs at least one option"
+        "variant_group_needs_value": "Each variant needs at least one option",
+        "imageUploadFailed": "Image upload failed. Please try again."
       }
     },
     "timeline": {
@@ -260,6 +275,7 @@
     "cartEmpty": "Add products to your order"
   },
   "errors": {
-    "rateLimit": "Too many attempts. Wait a few minutes and try again."
+    "rateLimit": "Too many attempts. Wait a few minutes and try again.",
+    "insufficientStock": "One or more products no longer have enough stock."
   }
 }

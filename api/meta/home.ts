@@ -1,20 +1,21 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { buildHomeSocialMeta, socialMetaToHtml } from "../../shared/socialMeta.js";
-import { getStoreConfig } from "../lib/storeSettings.js";
-import { getSiteOrigin } from "../lib/http.js";
+import { buildSocialMetaDocument } from "../../shared/socialMeta.js";
+import { getHomeSocialMeta, getRequestOrigin } from "../lib/socialMeta.js";
+import { methodNotAllowed } from "../lib/http.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const config = await getStoreConfig();
-  const origin = getSiteOrigin(req);
-  const locale = config.defaultLocale;
-  const meta = buildHomeSocialMeta({
-    origin,
-    storeName: config.storeName,
-    description: config.description,
-    locale,
-    defaultLocale: config.defaultLocale,
-  });
-  res.setHeader("Content-Type", "text/html; charset=utf-8");
-  res.setHeader("Cache-Control", "public, max-age=300, stale-while-revalidate=600");
-  return res.status(200).send(socialMetaToHtml(meta));
+  if (req.method !== "GET") {
+    return methodNotAllowed(res);
+  }
+
+  try {
+    const origin = getRequestOrigin(req);
+    const meta = await getHomeSocialMeta(origin);
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "public, s-maxage=300, stale-while-revalidate=600");
+    res.status(200).send(buildSocialMetaDocument(meta));
+  } catch (err) {
+    console.error("meta_home_error", err);
+    res.status(500).send("error");
+  }
 }

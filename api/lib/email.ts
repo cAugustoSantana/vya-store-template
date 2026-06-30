@@ -296,10 +296,7 @@ export async function notifyOrderStatusChange(params: {
 export function getBankTransferDetails(locale: Locale, config: StoreSettingsData) {
   const bt = config.payment.bankTransfer;
   return {
-    bankName: bt.bankName,
-    accountName: bt.accountName,
-    accountNumber: bt.accountNumber,
-    accountType: localizedField(bt.accountType, locale, config),
+    instructions: localizedField(bt.instructions, locale, config),
     referenceHint: localizedField(bt.referenceHint, locale, config),
   };
 }

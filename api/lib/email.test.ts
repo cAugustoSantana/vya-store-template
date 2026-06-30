@@ -29,11 +29,7 @@ vi.mock("./storeSettings.js", () => ({
     payment: {
       provider: "bank_transfer_proof",
       bankTransfer: {
-        bankName: "Bank",
-        accountName: "Acct",
-        accountNumber: "123",
-        accountType: { es: "Ahorros", en: "Savings" },
-        referenceHint: { es: "Ref", en: "Ref" },
+        instructions: { es: "Banco: Bank\nCuenta: 123", en: "Bank: Bank\nAccount: 123" },
       },
     },
     orderStatuses: ["payment_confirmation_pending", "confirmed", "out_for_delivery", "delivered", "cancelled"],

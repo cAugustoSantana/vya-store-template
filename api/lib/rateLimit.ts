@@ -1,3 +1,5 @@
+import { resolveEnv } from "./env.js";
+
 type Bucket = { count: number; resetAt: number };
 
 const memoryStore = new Map<string, Bucket>();
@@ -14,8 +16,8 @@ function getLimits() {
 }
 
 async function checkRedis(key: string, limit: number, windowMs: number): Promise<RateLimitResult | null> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = resolveEnv("UPSTASH_REDIS_REST_URL");
+  const token = resolveEnv("UPSTASH_REDIS_REST_TOKEN");
   if (!url || !token) return null;
 
   try {

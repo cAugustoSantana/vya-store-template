@@ -107,6 +107,14 @@ export async function updateAdminProduct(
   return parseJson<{ product: import("@shared/product.types").Product }>(res);
 }
 
+export async function deleteAdminProduct(token: string, id: string) {
+  const res = await fetch(`${API_BASE}/admin/products/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return parseJson<{ ok: true; id: string }>(res);
+}
+
 export async function uploadAdminProductImage(
   token: string,
   id: string,

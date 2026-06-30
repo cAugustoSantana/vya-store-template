@@ -1,24 +1,27 @@
-const BOT_UA =
-  /bot|crawl|spider|facebookexternalhit|twitterbot|linkedinbot|slackbot|discordbot|whatsapp|telegrambot|preview/i;
+import { SOCIAL_BOT_UA } from "./shared/socialMeta.js";
 
-export default function middleware(request: Request) {
-  const ua = request.headers.get("user-agent") ?? "";
-  if (!BOT_UA.test(ua)) {
+export const config = {
+  matcher: ["/", "/products/:id"],
+};
+
+export default async function middleware(request: Request): Promise<Response | undefined> {
+  const userAgent = request.headers.get("user-agent") ?? "";
+  if (!SOCIAL_BOT_UA.test(userAgent)) {
     return;
   }
 
   const url = new URL(request.url);
 
   if (url.pathname === "/" || url.pathname === "") {
-    return Response.redirect(new URL("/api/meta/home", url), 307);
+    return fetch(new URL("/api/meta/home", url.origin));
   }
 
-  const productMatch = url.pathname.match(/^\/products\/([^/]+)$/);
+  const productMatch = url.pathname.match(/^\/products\/([^/]+)\/?$/);
   if (productMatch?.[1]) {
-    return Response.redirect(new URL(`/api/meta/product/${productMatch[1]}`, url), 307);
+    return fetch(
+      new URL(`/api/meta/product/${encodeURIComponent(productMatch[1])}`, url.origin),
+    );
   }
-}
 
-export const config = {
-  matcher: ["/((?!api/|assets/|_next/|.*\\..*).*)"],
-};
+  return;
+}
