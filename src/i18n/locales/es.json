@@ -48,7 +48,10 @@
     "decreaseQty": "Disminuir cantidad",
     "increaseQty": "Aumentar cantidad",
     "soldOut": "Agotado",
-    "unitsAvailable": "{{count}} disponibles"
+    "unitsAvailable": "{{count}} disponibles",
+    "sizeLabel": "Talla",
+    "colorLabel": "Color",
+    "descriptionTitle": "Descripción"
   },
   "cart": {
     "title": "Tu pedido",

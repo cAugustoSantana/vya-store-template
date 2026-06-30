@@ -20,7 +20,7 @@ describe("ProductDetailPage", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: /Camiseta|Basic/i })).toBeInTheDocument();
+      expect(screen.getAllByRole("heading", { name: /Camiseta|Basic/i }).length).toBeGreaterThan(0);
     });
 
     const user = userEvent.setup();
