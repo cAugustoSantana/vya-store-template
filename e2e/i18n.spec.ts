@@ -8,11 +8,17 @@ test("home shows products with locale switcher", async ({ page }) => {
 
 test("locale switch updates storefront copy", async ({ page }) => {
   await gotoStorefront(page);
-  await switchLocale(page, "EN");
-  await expect(page.getByText("Basic T-shirt")).toBeVisible();
+  await page
+    .getByRole("link", { name: /Camiseta|Basic T-shirt/i })
+    .first()
+    .click();
   await expect(
-    page.getByRole("button", { name: /Agregar al pedido|Add to order/i }).first(),
-  ).not.toBeVisible();
+    page.getByRole("button", { name: /Agregar al pedido/i }),
+  ).toBeVisible();
+  await switchLocale(page, "EN");
+  await expect(page.getByRole("button", { name: /Add to order/i })).toBeVisible();
   await switchLocale(page, "ES");
-  await expect(page.getByText("Camiseta")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: /Agregar al pedido/i }),
+  ).toBeVisible();
 });
