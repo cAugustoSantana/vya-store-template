@@ -2,7 +2,7 @@ import { test, expect, switchLocale, gotoStorefront } from "./fixtures";
 
 test("home shows products with locale switcher", async ({ page }) => {
   await gotoStorefront(page);
-  await expect(page.getByRole("button", { name: "EN" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "EN", exact: true })).toBeVisible();
   await expect(page.getByText(/Camiseta|Basic T-shirt/)).toBeVisible();
 });
 

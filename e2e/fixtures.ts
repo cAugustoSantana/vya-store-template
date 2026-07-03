@@ -25,7 +25,7 @@ export async function openDefaultProduct(page: Page) {
 }
 
 export async function switchLocale(page: Page, locale: "EN" | "ES") {
-  await page.getByRole("button", { name: locale }).click();
+  await page.getByRole("button", { name: locale, exact: true }).click();
 }
 
 export async function addDefaultProductToCart(page: Page) {
