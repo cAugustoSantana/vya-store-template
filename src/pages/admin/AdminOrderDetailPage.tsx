@@ -59,9 +59,10 @@ export function AdminOrderDetailPage() {
   }
 
   const buyerWhatsAppUrl = buildBuyerWhatsAppUrl(order.buyer.phone);
+  const pendingPayment = order.estado === "payment_confirmation_pending";
 
   return (
-    <>
+    <div className={pendingPayment ? styles.pageWithStickyBar : undefined}>
       <Link to="/admin/orders" className={styles.backLink}>
         {t("admin.backToOrders")}
       </Link>
@@ -75,10 +76,10 @@ export function AdminOrderDetailPage() {
           <StatusBadge status={order.estado} />
         </div>
         <div className={styles.headerActions}>
-          {order.estado === "payment_confirmation_pending" && (
+          {pendingPayment && (
             <button
               type="button"
-              className={adminStyles.confirmBtn}
+              className={`${adminStyles.confirmBtn} ${styles.desktopOnlyAction}`}
               onClick={() => void confirmPayment()}
             >
               {t("admin.confirmPayment")}
@@ -160,10 +161,10 @@ export function AdminOrderDetailPage() {
                   </option>
                 ))}
               </select>
-              {order.estado === "payment_confirmation_pending" && (
+              {pendingPayment && (
                 <button
                   type="button"
-                  className={adminStyles.confirmBtn}
+                  className={`${adminStyles.confirmBtn} ${styles.desktopOnlyAction}`}
                   onClick={() => void confirmPayment()}
                 >
                   {t("admin.confirmPayment")}
@@ -172,12 +173,24 @@ export function AdminOrderDetailPage() {
             </div>
           </div>
 
-          <div className={styles.card}>
+          <div className={`${styles.card} ${styles.sidebarOnly}`}>
             <h2 className={styles.cardTitle}>{t("admin.proof")}</h2>
             <AdminProofViewer order={order} token={token} />
           </div>
         </div>
       </div>
-    </>
+
+      {pendingPayment ? (
+        <div className={styles.mobileStickyBar}>
+          <button
+            type="button"
+            className={adminStyles.confirmBtn}
+            onClick={() => void confirmPayment()}
+          >
+            {t("admin.confirmPayment")}
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }

@@ -6,7 +6,10 @@ import type { Locale } from "@shared/types";
 import { useCart } from "@/context/CartContext";
 import { useActiveOrder } from "@/hooks/useActiveOrder";
 import { postCheckout } from "@/lib/api";
-import { formatMoney } from "@/lib/format";
+import {
+  CheckoutOrderSummaryDesktop,
+  CheckoutOrderSummaryMobile,
+} from "@/components/CheckoutOrderSummary";
 import { StorefrontHeader } from "@/components/StorefrontHeader";
 import { StorefrontFooter } from "@/components/StorefrontFooter";
 import type { CheckoutResponse } from "@/types/commerce";
@@ -22,11 +25,6 @@ type FormValues = {
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-function formatVariants(variants: Record<string, string>): string {
-  const parts = Object.entries(variants).map(([k, v]) => `${k}: ${v}`);
-  return parts.join(" • ");
-}
 
 export function CheckoutPage() {
   const { t, i18n } = useTranslation();
@@ -157,6 +155,13 @@ export function CheckoutPage() {
           <p className="text-xs text-gray-500 lg:text-sm">{t("checkout.subtitle")}</p>
         </div>
 
+        <CheckoutOrderSummaryMobile
+          lines={lines}
+          total={total}
+          locale={locale}
+          getProduct={getProduct}
+        />
+
         <div className="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7 lg:min-h-0 lg:overflow-y-auto lg:pr-1">
             <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:p-6">
@@ -286,68 +291,12 @@ export function CheckoutPage() {
           </div>
 
           <div className="lg:col-span-5 lg:min-h-0">
-            <div className="flex max-h-full flex-col rounded-2xl border border-gray-200 bg-white p-5 shadow-sm lg:sticky lg:top-14 lg:max-h-[calc(100dvh-3.75rem)] lg:overflow-y-auto lg:p-6">
-              <h3 className="mb-4 flex shrink-0 items-center justify-between border-b border-gray-100 pb-3 text-lg font-bold text-gray-900">
-                {t("checkout.orderSummary")}
-                <span className="text-sm font-medium text-gray-500">
-                  {lines.length} {lines.length === 1 ? "item" : "items"}
-                </span>
-              </h3>
-
-              <div className="mb-4 space-y-4">
-                {lines.map((line) => {
-                  const product = getProduct(line.productId);
-                  const name = product ? product.name : line.productId;
-                  const unitPrice = product?.price ?? 0;
-                  const lineTotal = unitPrice * line.quantity;
-                  const variants = formatVariants(line.variants);
-
-                  return (
-                    <div key={line.lineId} className="flex gap-4">
-                      <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-gray-50">
-                        <span className="text-[10px] font-bold text-brand-600">
-                          {name.slice(0, 10)}
-                        </span>
-                      </div>
-                      <div className="flex-grow">
-                        <div className="flex items-start justify-between gap-3">
-                          <h4 className="font-bold text-gray-900">{name}</h4>
-                          <span className="font-bold text-gray-900">
-                            {formatMoney(unitPrice, locale)}
-                          </span>
-                        </div>
-                        {variants && (
-                          <p className="mt-0.5 text-sm text-gray-500">{variants}</p>
-                        )}
-                        <p className="mt-1 text-sm font-semibold text-brand-600">
-                          Qty: {line.quantity}
-                        </p>
-                        <p className="mt-1 text-xs font-medium text-gray-400">
-                          Line: {formatMoney(lineTotal, locale)}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="shrink-0 space-y-3 border-t border-gray-100 pt-4">
-                <div className="flex justify-between text-gray-500">
-                  <span className="font-medium">Subtotal</span>
-                  <span className="font-semibold">{formatMoney(total, locale)}</span>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <span className="font-medium">Shipping</span>
-                  <span className="font-semibold text-green-600">Free</span>
-                </div>
-                <div className="flex justify-between border-t border-dashed border-gray-200 pt-2 text-base lg:text-lg">
-                  <span className="font-bold text-gray-900">{t("cart.total")}</span>
-                  <span className="text-2xl font-black tracking-tight text-gray-900 lg:text-3xl">
-                    {formatMoney(total, locale)}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <CheckoutOrderSummaryDesktop
+              lines={lines}
+              total={total}
+              locale={locale}
+              getProduct={getProduct}
+            />
           </div>
         </div>
       </main>

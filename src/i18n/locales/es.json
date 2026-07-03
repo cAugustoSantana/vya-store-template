@@ -162,7 +162,9 @@
     "nav": {
       "orders": "Pedidos",
       "products": "Productos",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "openMenu": "Abrir menú",
+      "closeMenu": "Cerrar menú"
     },
     "settings": {
       "title": "Configuración de la tienda",

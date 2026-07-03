@@ -162,7 +162,9 @@
     "nav": {
       "orders": "Orders",
       "products": "Products",
-      "settings": "Settings"
+      "settings": "Settings",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu"
     },
     "settings": {
       "title": "Store settings",

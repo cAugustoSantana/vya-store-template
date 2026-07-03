@@ -208,6 +208,72 @@
   color: #6b7280;
 }
 
+.pageWithStickyBar {
+  padding-bottom: 5.5rem;
+}
+
+.desktopOnlyAction {
+  display: none;
+}
+
+.sidebarOnly {
+  display: none;
+}
+
+.mobileStickyBar {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .pageWithStickyBar {
+    padding-bottom: 0;
+  }
+
+  .desktopOnlyAction {
+    display: inline-flex;
+  }
+
+  .sidebarOnly {
+    display: block;
+  }
+}
+
+@media (max-width: 1023px) {
+  .headerMain h1 {
+    font-size: 1.25rem;
+  }
+
+  .headerActions {
+    width: 100%;
+  }
+
+  .whatsappBtn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .mobileStickyBar {
+    display: block;
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 30;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+    padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 12px rgb(0 0 0 / 6%);
+  }
+
+  .mobileStickyBar button {
+    width: 100%;
+    margin-top: 0;
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+  }
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;

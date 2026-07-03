@@ -77,3 +77,19 @@
   font-weight: 600;
   color: #374151;
 }
+
+@media (max-width: 768px) {
+  .sectionHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .table th,
+  .table td {
+    padding: 0.625rem 0.75rem;
+  }
+
+  .input {
+    max-width: none;
+  }
+}

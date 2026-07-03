@@ -47,7 +47,7 @@ export function AdminPageHeader({
         <h1 className="text-2xl font-black tracking-tight text-gray-900 lg:text-3xl">{title}</h1>
         {subtitle ? <div className="mt-1 text-sm text-gray-500">{subtitle}</div> : null}
       </div>
-      {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
+      {headerAction ? <div className="w-full shrink-0 sm:w-auto">{headerAction}</div> : null}
     </header>
   );
 }
@@ -184,7 +184,7 @@ export function AdminLinkButton({
   return (
     <Link
       to={to}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${variants[variant]}`}
+      className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all sm:w-auto ${variants[variant]}`}
     >
       {children}
     </Link>
@@ -193,8 +193,42 @@ export function AdminLinkButton({
 
 export function AdminTable({ children, className = "" }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm ${className}`}>
+    <div
+      className={`hidden overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm md:block ${className}`}
+    >
       <table className="w-full border-collapse text-sm">{children}</table>
+    </div>
+  );
+}
+
+export function AdminMobileList({ children, className = "" }: { children: ReactNode; className?: string }) {
+  return <div className={`space-y-3 md:hidden ${className}`}>{children}</div>;
+}
+
+export function AdminMobileCard({
+  children,
+  className = "",
+  to,
+  onClick,
+}: {
+  children: ReactNode;
+  className?: string;
+  to?: string;
+  onClick?: () => void;
+}) {
+  const cardClass = `block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-colors hover:bg-gray-50/80 active:bg-gray-50 ${className}`;
+
+  if (to) {
+    return (
+      <Link to={to} className={cardClass} onClick={onClick}>
+        {children}
+      </Link>
+    );
+  }
+
+  return (
+    <div className={cardClass} onClick={onClick} role={onClick ? "button" : undefined}>
+      {children}
     </div>
   );
 }
