@@ -86,25 +86,7 @@ function resolveVariantsForWrite(
   };
 }
 
-let galleryColumnReady: Promise<void> | null = null;
-
-/** Idempotent so a preview request can add image_urls when the database URL is not readable locally. */
-async function ensureProductGalleryColumn(): Promise<void> {
-  if (!galleryColumnReady) {
-    const sql = getSql();
-    galleryColumnReady = (async () => {
-      await sql`ALTER TABLE products ADD COLUMN IF NOT EXISTS image_urls JSONB NOT NULL DEFAULT '[]'::jsonb`;
-      await sql`UPDATE products SET image_urls = jsonb_build_array(image_url) WHERE image_url <> '' AND image_urls = '[]'::jsonb`;
-    })().catch((error) => {
-      galleryColumnReady = null;
-      throw error;
-    });
-  }
-  await galleryColumnReady;
-}
-
 export async function listActiveProducts(): Promise<Product[]> {
-  await ensureProductGalleryColumn();
   const sql = getSql();
   const rows = (await sql`
     SELECT * FROM products
@@ -115,7 +97,6 @@ export async function listActiveProducts(): Promise<Product[]> {
 }
 
 export async function listAllProducts(): Promise<Product[]> {
-  await ensureProductGalleryColumn();
   const sql = getSql();
   const rows = (await sql`
     SELECT * FROM products
@@ -125,7 +106,6 @@ export async function listAllProducts(): Promise<Product[]> {
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  await ensureProductGalleryColumn();
   const sql = getSql();
   const rows = (await sql`
     SELECT * FROM products WHERE id = ${id} LIMIT 1
@@ -182,7 +162,6 @@ function resolveProductText(value: string | Record<string, string>): string {
 export async function createProduct(
   input: ProductWriteFields & { id: string; name: string | Record<string, string>; description: string | Record<string, string>; price: number },
 ): Promise<Product> {
-  await ensureProductGalleryColumn();
   const name = resolveProductText(input.name);
   const description = resolveProductText(input.description);
   const variantOptions = input.variantOptions ?? {};
@@ -219,7 +198,6 @@ export async function createProduct(
 }
 
 export async function updateProduct(id: string, input: ProductWriteFields): Promise<Product | null> {
-  await ensureProductGalleryColumn();
   const existing = await getProductById(id);
   if (!existing) return null;
 
@@ -277,7 +255,6 @@ export async function deleteProduct(id: string): Promise<boolean> {
 }
 
 export async function reorderProducts(orderedIds: string[]): Promise<Product[]> {
-  await ensureProductGalleryColumn();
   const existing = await listAllProducts();
   assertCompleteProductOrder(
     existing.map((product) => product.id),
