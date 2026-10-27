@@ -11,6 +11,7 @@ const mockProduct: Product = {
   description: "Desc",
   price: 1500,
   imageUrl: "/products/prod-1.svg",
+  imageUrls: ["/products/prod-1.svg"],
   variantOptions: {
     size: {
       label: { es: "Talla", en: "Size" },

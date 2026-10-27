@@ -6,6 +6,7 @@
       "description": "Algodón suave, corte regular",
       "price": 1500,
       "imageUrl": "/products/prod-1.svg",
+      "imageUrls": ["/products/prod-1.svg", "/products/prod-2.svg"],
       "variantOptions": {
         "size": {
           "label": { "es": "Talla", "en": "Size" },
@@ -34,6 +35,7 @@
       "description": "Gorra ajustable con logo bordado",
       "price": 900,
       "imageUrl": "/products/prod-2.svg",
+      "imageUrls": ["/products/prod-2.svg"],
       "variantOptions": {
         "color": {
           "label": { "es": "Color", "en": "Color" },

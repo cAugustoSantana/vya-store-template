@@ -45,6 +45,8 @@
     "termsOfService": "Términos de servicio",
     "contactSupport": "Contactar soporte",
     "viewFullImage": "Ver imagen completa",
+    "previousImage": "Imagen anterior",
+    "nextImage": "Imagen siguiente",
     "decreaseQty": "Disminuir cantidad",
     "increaseQty": "Aumentar cantidad",
     "soldOut": "Agotado",
@@ -235,7 +237,16 @@
       "addOption": "Agregar opción",
       "removeOption": "Quitar opción",
       "removeGroup": "Quitar",
-      "image": "Imagen del producto",
+      "image": "Imágenes del producto",
+      "imagesHint": "Agrega hasta 8 fotos. La primera imagen es la portada del catálogo.",
+      "coverImage": "Portada",
+      "imageN": "Imagen {{index}}",
+      "moveImageUp": "Subir imagen",
+      "moveImageDown": "Bajar imagen",
+      "removeImage": "Quitar",
+      "order": "Orden",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
       "save": "Guardar producto",
       "back": "Volver a productos",
       "delete": "Eliminar",
@@ -249,7 +260,9 @@
         "variant_value_key_invalid": "Las claves de opción deben empezar con letra y usar solo minúsculas, números, _ o -",
         "variant_value_key_duplicate": "Clave de opción duplicada en la misma variante",
         "variant_group_needs_value": "Cada variante necesita al menos una opción",
-        "imageUploadFailed": "No se pudo subir la imagen. Inténtalo de nuevo."
+        "imageUploadFailed": "No se pudo subir la imagen. Inténtalo de nuevo.",
+        "tooManyImages": "Un producto puede tener como máximo 8 imágenes.",
+        "invalidImages": "No se pudo guardar una o más imágenes."
       }
     },
     "timeline": {

@@ -10,6 +10,7 @@ export const mockProducts: Product[] = [
     description: "Algodón suave, corte regular",
     price: 1500,
     imageUrl: "/products/prod-1.svg",
+    imageUrls: ["/products/prod-1.svg"],
     variantOptions: {
       size: {
         label: { es: "Talla", en: "Size" },
@@ -38,6 +39,7 @@ export const mockProducts: Product[] = [
     description: "Gorra ajustable con logo bordado",
     price: 900,
     imageUrl: "/products/prod-2.svg",
+    imageUrls: ["/products/prod-2.svg"],
     variantOptions: {
       color: {
         label: { es: "Color", en: "Color" },

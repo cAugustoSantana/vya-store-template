@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   hasCustomLogo,
+  normalizeProductImages,
   resolvePublicLogoUrl,
   resolvePublicProductImageUrl,
   shouldProxyBlobUrl,
@@ -15,6 +16,12 @@ describe("imageUrl", () => {
     expect(resolvePublicProductImageUrl("Cuero001", privateBlob)).toBe(
       "/api/products/Cuero001/image",
     );
+    expect(resolvePublicProductImageUrl("Cuero001", privateBlob, undefined, 0)).toBe(
+      "/api/products/Cuero001/image",
+    );
+    expect(resolvePublicProductImageUrl("Cuero001", privateBlob, undefined, 1)).toBe(
+      "/api/products/Cuero001/image?i=1",
+    );
     expect(resolvePublicLogoUrl(privateBlob)).toBe("/api/settings/logo");
   });
 
@@ -28,6 +35,22 @@ describe("imageUrl", () => {
   it("skips proxy when blob store is public", () => {
     expect(shouldProxyBlobUrl(privateBlob, "public")).toBe(false);
     expect(resolvePublicProductImageUrl("Cuero001", privateBlob, "public")).toBe(privateBlob);
+  });
+
+  it("keeps the cover in sync with an ordered gallery", () => {
+    expect(
+      normalizeProductImages({
+        imageUrls: ["/products/prod-2.svg", "/products/prod-1.svg"],
+      }),
+    ).toEqual({
+      imageUrl: "/products/prod-2.svg",
+      imageUrls: ["/products/prod-2.svg", "/products/prod-1.svg"],
+    });
+    expect(() =>
+      normalizeProductImages({
+        imageUrls: Array.from({ length: 9 }, () => "/products/prod-1.svg"),
+      }),
+    ).toThrow("too_many_images");
   });
 
   it("detects custom logo", () => {

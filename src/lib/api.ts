@@ -129,9 +129,19 @@ export async function uploadAdminProductImage(
     },
     body: JSON.stringify({ imageBase64, mimeType }),
   });
-  return parseJson<{ product: import("@shared/product.types").Product; imageUrl: string }>(
-    res,
-  );
+  return parseJson<{ imageUrl: string }>(res);
+}
+
+export async function reorderAdminProducts(token: string, ids: string[]) {
+  const res = await fetch(`${API_BASE}/admin/products/reorder`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ ids }),
+  });
+  return parseJson<{ products: import("@shared/product.types").Product[] }>(res);
 }
 
 export async function fetchAdminOrders(token: string) {

@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS products (
   description JSONB NOT NULL,
   price NUMERIC(12, 2) NOT NULL CHECK (price >= 0),
   image_url TEXT NOT NULL,
+  image_urls JSONB NOT NULL DEFAULT '[]'::jsonb,
   variant_options JSONB NOT NULL DEFAULT '{}'::jsonb,
   variants JSONB NOT NULL DEFAULT '[]'::jsonb,
   active BOOLEAN NOT NULL DEFAULT true,
@@ -72,6 +73,8 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE INDEX IF NOT EXISTS products_active_sort_idx ON products (active, sort_order, id);
 
 COMMENT ON TABLE products IS 'Store catalog; name/description are localized JSONB { es, en }';
+COMMENT ON COLUMN products.image_url IS 'Cover image. Kept in sync with the first gallery URL.';
+COMMENT ON COLUMN products.image_urls IS 'Ordered gallery URLs. Empty falls back to image_url when read.';
 COMMENT ON COLUMN products.variant_options IS 'Variant groups JSON matching shared Product.variantOptions shape';
 COMMENT ON COLUMN products.variants IS 'Per option-combination price/stock rows; empty uses product-level stock only';
 COMMENT ON COLUMN products.stock_quantity IS 'Units available for sale; sum of variants or product-level stock';

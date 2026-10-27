@@ -1,8 +1,8 @@
 import { Link, useOutletContext } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
-import { CaretRight } from "@phosphor-icons/react";
-import { fetchAdminProducts, deleteAdminProduct } from "@/lib/api";
+import { useEffect, useRef, useState } from "react";
+import { CaretDown, CaretRight, CaretUp } from "@phosphor-icons/react";
+import { fetchAdminProducts, deleteAdminProduct, reorderAdminProducts } from "@/lib/api";
 import {
   AdminButton,
   AdminEmptyState,
@@ -30,6 +30,8 @@ export function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
+  const savingOrderRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,6 +51,35 @@ export function AdminProductsPage() {
       cancelled = true;
     };
   }, [token]);
+
+  const moveProduct = async (index: number, direction: -1 | 1) => {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= products.length || savingOrderRef.current) return;
+
+    const previous = products;
+    const reordered = [...products];
+    const [item] = reordered.splice(index, 1);
+    if (!item) return;
+    reordered.splice(nextIndex, 0, item);
+
+    savingOrderRef.current = true;
+    setSavingOrder(true);
+    setProducts(reordered);
+    setError(null);
+    try {
+      const data = await reorderAdminProducts(
+        token,
+        reordered.map((product) => product.id),
+      );
+      setProducts(data.products);
+    } catch (err) {
+      setProducts(previous);
+      setError(err instanceof Error ? err.message : "error");
+    } finally {
+      savingOrderRef.current = false;
+      setSavingOrder(false);
+    }
+  };
 
   const handleDelete = async (product: Product) => {
     const name = product.name;
@@ -83,10 +114,18 @@ export function AdminProductsPage() {
       ) : (
         <>
           <AdminMobileList>
-            {products.map((product) => (
+            {products.map((product, index) => (
               <AdminMobileCard key={product.id}>
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                  <OrderButtons
+                    index={index}
+                    count={products.length}
+                    disabled={savingOrder || deletingId !== null}
+                    moveUpLabel={t("admin.products.moveUp")}
+                    moveDownLabel={t("admin.products.moveDown")}
+                    onMove={(direction) => void moveProduct(index, direction)}
+                  />
+                  <div className="min-w-0 flex-1">
                     <p className="truncate font-bold text-gray-900">{product.name}</p>
                     <p className="mt-0.5 text-sm text-gray-500">
                       {t("admin.products.stockQuantity")}: {product.stockQuantity ?? 0}
@@ -122,6 +161,9 @@ export function AdminProductsPage() {
           <AdminTable>
             <thead>
               <tr className="border-b border-gray-200 bg-gray-50/80">
+                <th className={adminThClass}>
+                  <span className="sr-only">{t("admin.products.order")}</span>
+                </th>
                 <th className={adminThClass}>{t("admin.products.id")}</th>
                 <th className={adminThClass}>{t("admin.products.name")}</th>
                 <th className={adminThClass}>{t("admin.products.price")}</th>
@@ -131,8 +173,18 @@ export function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <tr key={product.id} className={adminTrClass}>
+                  <td className={adminTdClass}>
+                    <OrderButtons
+                      index={index}
+                      count={products.length}
+                      disabled={savingOrder || deletingId !== null}
+                      moveUpLabel={t("admin.products.moveUp")}
+                      moveDownLabel={t("admin.products.moveDown")}
+                      onMove={(direction) => void moveProduct(index, direction)}
+                    />
+                  </td>
                   <td className={`${adminTdClass} font-mono text-xs text-gray-600`}>{product.id}</td>
                   <td className={`${adminTdClass} font-semibold`}>{product.name}</td>
                   <td className={adminTdClass}>{formatMoney(product.price, locale)}</td>
@@ -165,5 +217,44 @@ export function AdminProductsPage() {
         </>
       )}
     </>
+  );
+}
+
+function OrderButtons({
+  index,
+  count,
+  disabled,
+  moveUpLabel,
+  moveDownLabel,
+  onMove,
+}: {
+  index: number;
+  count: number;
+  disabled: boolean;
+  moveUpLabel: string;
+  moveDownLabel: string;
+  onMove: (direction: -1 | 1) => void;
+}) {
+  return (
+    <div className="flex flex-col">
+      <button
+        type="button"
+        className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+        aria-label={moveUpLabel}
+        disabled={disabled || index === 0}
+        onClick={() => onMove(-1)}
+      >
+        <CaretUp size={14} weight="bold" aria-hidden />
+      </button>
+      <button
+        type="button"
+        className="flex h-7 w-7 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+        aria-label={moveDownLabel}
+        disabled={disabled || index === count - 1}
+        onClick={() => onMove(1)}
+      >
+        <CaretDown size={14} weight="bold" aria-hidden />
+      </button>
+    </div>
   );
 }

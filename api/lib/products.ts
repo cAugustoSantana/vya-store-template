@@ -10,7 +10,11 @@ import {
   syncVariantsFromOptions,
   totalVariantStock,
 } from "../../shared/productVariants.js";
-import { sanitizePersistedImageUrl } from "../../shared/imageUrl.js";
+import {
+  normalizeProductImages,
+  sanitizePersistedImageUrl,
+  sanitizeProductImageUrls,
+} from "../../shared/imageUrl.js";
 import { getSql } from "./db.js";
 
 function parseJsonField<T>(value: T | string): T {
@@ -19,6 +23,26 @@ function parseJsonField<T>(value: T | string): T {
 
 function parseVariants(raw: unknown): ProductVariant[] {
   return normalizeVariantsInput(raw);
+}
+
+function parseImageUrls(raw: unknown): string[] {
+  const value = typeof raw === "string" ? (JSON.parse(raw) as unknown) : raw;
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === "string");
+}
+
+export function assertCompleteProductOrder(
+  existingIds: readonly string[],
+  orderedIds: readonly string[],
+): void {
+  if (orderedIds.length !== existingIds.length) throw new Error("invalid_order");
+  const existing = new Set(existingIds);
+  if (existing.size !== existingIds.length) throw new Error("invalid_order");
+  const seen = new Set<string>();
+  for (const id of orderedIds) {
+    if (!existing.has(id) || seen.has(id)) throw new Error("invalid_order");
+    seen.add(id);
+  }
 }
 
 export function rowToProduct(row: ProductRow): Product {
@@ -31,12 +55,19 @@ export function rowToProduct(row: ProductRow): Product {
     description: productTextFromStored(descriptionRaw),
     price: Number(row.price),
     imageUrl: sanitizePersistedImageUrl(row.image_url),
+    imageUrls: galleryUrlsFromRow(row.image_urls, row.image_url),
     variantOptions: parseJsonField(row.variant_options) as Record<string, VariantGroup>,
     variants,
     active: row.active,
     sortOrder: row.sort_order,
     stockQuantity: row.stock_quantity,
   };
+}
+
+function galleryUrlsFromRow(raw: unknown, imageUrl: string): string[] {
+  const sanitized = sanitizeProductImageUrls(parseImageUrls(raw));
+  if (sanitized.length > 0) return sanitized;
+  return [sanitizePersistedImageUrl(imageUrl)];
 }
 
 function resolveVariantsForWrite(
@@ -106,12 +137,21 @@ export type ProductWriteFields = {
   description?: string | Record<string, string>;
   price?: number;
   imageUrl?: string;
+  imageUrls?: string[];
   variantOptions?: Record<string, unknown>;
   variants?: ProductVariant[];
   active?: boolean;
   sortOrder?: number;
   stockQuantity?: number;
 };
+
+async function nextSortOrder(): Promise<number> {
+  const sql = getSql();
+  const rows = (await sql`
+    SELECT COALESCE(MAX(sort_order), -1) + 1 AS next_sort FROM products
+  `) as { next_sort: number | string }[];
+  return Number(rows[0]?.next_sort ?? 0);
+}
 
 function resolveProductText(value: string | Record<string, string>): string {
   const normalized = normalizeProductTextInput(value);
@@ -130,20 +170,26 @@ export async function createProduct(
     input.variants,
     input.stockQuantity,
   );
+  const images = normalizeProductImages({
+    imageUrls: input.imageUrls,
+    imageUrl: input.imageUrl,
+  });
+  const sortOrder = input.sortOrder !== undefined ? input.sortOrder : await nextSortOrder();
   const sql = getSql();
   const rows = (await sql`
     INSERT INTO products (
-      id, name, description, price, image_url, variant_options, variants, active, sort_order, stock_quantity
+      id, name, description, price, image_url, image_urls, variant_options, variants, active, sort_order, stock_quantity
     ) VALUES (
       ${input.id},
       ${JSON.stringify(productTextToStored(name))}::jsonb,
       ${JSON.stringify(productTextToStored(description))}::jsonb,
       ${input.price},
-      ${sanitizePersistedImageUrl(input.imageUrl)},
+      ${images.imageUrl},
+      ${JSON.stringify(images.imageUrls)}::jsonb,
       ${JSON.stringify(variantOptions)}::jsonb,
       ${JSON.stringify(variants)}::jsonb,
       ${input.active ?? true},
-      ${input.sortOrder ?? 0},
+      ${sortOrder},
       ${stockQuantity}
     )
     RETURNING *
@@ -164,6 +210,11 @@ export async function updateProduct(id: string, input: ProductWriteFields): Prom
     input.variants ?? existing.variants,
     input.stockQuantity ?? existing.stockQuantity,
   );
+  const images = normalizeProductImages({
+    imageUrls: input.imageUrls,
+    imageUrl: input.imageUrl,
+    existing,
+  });
 
   const sql = getSql();
   const rows = (await sql`
@@ -171,7 +222,8 @@ export async function updateProduct(id: string, input: ProductWriteFields): Prom
       name = ${JSON.stringify(productTextToStored(name))}::jsonb,
       description = ${JSON.stringify(productTextToStored(description))}::jsonb,
       price = ${input.price ?? existing.price},
-      image_url = ${input.imageUrl !== undefined ? sanitizePersistedImageUrl(input.imageUrl, sanitizePersistedImageUrl(existing.imageUrl)) : existing.imageUrl},
+      image_url = ${images.imageUrl},
+      image_urls = ${JSON.stringify(images.imageUrls)}::jsonb,
       variant_options = ${JSON.stringify(variantOptions)}::jsonb,
       variants = ${JSON.stringify(variants)}::jsonb,
       active = ${input.active ?? existing.active ?? true},
@@ -202,12 +254,20 @@ export async function deleteProduct(id: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-export async function updateProductImageUrl(id: string, imageUrl: string): Promise<Product | null> {
+export async function reorderProducts(orderedIds: string[]): Promise<Product[]> {
+  const existing = await listAllProducts();
+  assertCompleteProductOrder(
+    existing.map((product) => product.id),
+    orderedIds,
+  );
+  if (orderedIds.length === 0) return [];
+
   const sql = getSql();
-  const rows = (await sql`
-    UPDATE products SET image_url = ${imageUrl}, updated_at = now()
-    WHERE id = ${id}
-    RETURNING *
-  `) as ProductRow[];
-  return rows[0] ? rowToProduct(rows[0]) : null;
+  await sql.transaction(
+    orderedIds.map(
+      (id, index) =>
+        sql`UPDATE products SET sort_order = ${index}, updated_at = now() WHERE id = ${id}`,
+    ),
+  );
+  return listAllProducts();
 }

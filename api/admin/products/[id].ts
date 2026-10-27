@@ -3,6 +3,7 @@ import { hasDatabase } from "../../lib/db.js";
 import { requireAdmin } from "../../lib/auth.js";
 import { deleteProduct, getProductById, updateProduct } from "../../lib/products.js";
 import { normalizeVariantsInput } from "../../../shared/productVariants.js";
+import { readProductImageUrls } from "../../../shared/imageUrl.js";
 import { json, methodNotAllowed, readJsonBody } from "../../lib/http.js";
 
 type UpdateProductBody = {
@@ -10,6 +11,7 @@ type UpdateProductBody = {
   description?: string | Record<string, string>;
   price?: number;
   imageUrl?: string;
+  imageUrls?: unknown;
   variantOptions?: Record<string, unknown>;
   variants?: unknown;
   active?: boolean;
@@ -51,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
       const product = await updateProduct(id, {
         ...body,
+        imageUrls: readProductImageUrls(body.imageUrls),
         variants: body.variants !== undefined ? normalizeVariantsInput(body.variants) : undefined,
       });
       if (!product) {
@@ -71,6 +74,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     if (err instanceof Error && err.message === "unauthorized") {
       return json(res, 401, { error: "unauthorized" });
+    }
+    if (
+      err instanceof Error &&
+      (err.message === "invalid_images" || err.message === "too_many_images")
+    ) {
+      return json(res, 400, { error: err.message });
     }
     console.error("admin_product_error", err);
     return json(res, 500, { error: "server_error" });
