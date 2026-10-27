@@ -37,19 +37,19 @@ export function StorefrontPage() {
   usePageMeta(pageMeta);
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900 lg:h-[100dvh] lg:overflow-hidden">
+    <div className="flex min-h-[100dvh] flex-col bg-gray-50/50 font-sans text-gray-900 antialiased selection:bg-brand-100 selection:text-brand-900">
       <StorefrontHeader />
       <PendingOrderBanner />
 
       <main
-        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:px-5 lg:min-h-0 lg:overflow-hidden lg:px-8 lg:py-3 lg:pb-3 ${
+        className={`mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:px-5 lg:px-8 lg:py-3 lg:pb-3 ${
           isDrawerOpen ? "pointer-events-none opacity-40" : ""
         }`}
       >
         {loading && <p className="text-gray-500">{t("common.loading")}</p>}
         {error && <p className="font-medium text-red-600">{error}</p>}
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:min-h-0 lg:flex-1 lg:gap-5 lg:content-start lg:overflow-y-auto">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:gap-5">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} locale={locale} />
           ))}
