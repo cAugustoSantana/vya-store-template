@@ -22,6 +22,7 @@ export type Product = {
   description: string;
   price: number;
   imageUrl: string;
+  imageUrls: string[];
   variantOptions: Record<string, VariantGroup>;
   variants?: ProductVariant[];
   active?: boolean;

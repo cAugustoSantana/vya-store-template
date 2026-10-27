@@ -45,6 +45,8 @@
     "termsOfService": "Terms of Service",
     "contactSupport": "Contact Support",
     "viewFullImage": "View full image",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
     "decreaseQty": "Decrease quantity",
     "increaseQty": "Increase quantity",
     "soldOut": "Sold out",
@@ -235,7 +237,16 @@
       "addOption": "Add option",
       "removeOption": "Remove option",
       "removeGroup": "Remove",
-      "image": "Product image",
+      "image": "Product images",
+      "imagesHint": "Add up to 8 photos. The first image is the catalog cover.",
+      "coverImage": "Cover",
+      "imageN": "Image {{index}}",
+      "moveImageUp": "Move image up",
+      "moveImageDown": "Move image down",
+      "removeImage": "Remove",
+      "order": "Order",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
       "save": "Save product",
       "back": "Back to products",
       "delete": "Delete",
@@ -249,7 +260,9 @@
         "variant_value_key_invalid": "Option keys must start with a letter and use only lowercase letters, numbers, _ or -",
         "variant_value_key_duplicate": "Duplicate option key in the same variant",
         "variant_group_needs_value": "Each variant needs at least one option",
-        "imageUploadFailed": "Image upload failed. Please try again."
+        "imageUploadFailed": "Image upload failed. Please try again.",
+        "tooManyImages": "A product can have at most 8 images.",
+        "invalidImages": "One or more images could not be saved."
       }
     },
     "timeline": {

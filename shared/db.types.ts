@@ -41,6 +41,7 @@ export type ProductRow = {
   description: unknown;
   price: string;
   image_url: string;
+  image_urls?: unknown;
   variant_options: Record<string, unknown>;
   variants?: unknown;
   active: boolean;

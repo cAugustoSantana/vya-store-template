@@ -1,6 +1,6 @@
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import {
   createAdminProduct,
   deleteAdminProduct,
@@ -8,6 +8,12 @@ import {
   updateAdminProduct,
   uploadAdminProductImage,
 } from "@/lib/api";
+import { ProductImagesEditor } from "@/components/admin/ProductImagesEditor";
+import {
+  revokePendingPreviews,
+  slotsFromUrls,
+  type ProductImageSlot,
+} from "@/components/admin/productImageSlots";
 import { VariantOptionsEditor } from "@/components/admin/VariantOptionsEditor";
 import { ProductVariantsEditor } from "@/components/admin/ProductVariantsEditor";
 import {
@@ -29,13 +35,17 @@ import {
 } from "@/lib/variantOptions";
 import type { Product, ProductVariant } from "@shared/product.types";
 import { syncVariantsFromOptions } from "@shared/productVariants";
-import {
-  PRODUCT_IMAGE_PLACEHOLDER,
-  sanitizePersistedImageUrl,
-} from "@shared/imageUrl";
-import { resolvePublicProductImageUrl } from "@/lib/imageUrl";
+import { sanitizePersistedImageUrl } from "@shared/imageUrl";
 
 type AdminOutletContext = { token: string };
+
+function productFormError(err: unknown, t: (key: string) => string): string {
+  const message = err instanceof Error ? err.message : "";
+  if (message === "too_many_images") return t("admin.products.errors.tooManyImages");
+  if (message === "invalid_images") return t("admin.products.errors.invalidImages");
+  if (message === "imageUploadFailed") return t("admin.products.errors.imageUploadFailed");
+  return message || t("common.error");
+}
 
 async function fileToBase64(file: File): Promise<{ base64: string; mimeType: string }> {
   return new Promise((resolve, reject) => {
@@ -68,9 +78,9 @@ export function AdminProductFormPage() {
   const [stockQuantity, setStockQuantity] = useState("0");
   const [variantGroups, setVariantGroups] = useState<VariantGroupDraft[]>([]);
   const [variantRows, setVariantRows] = useState<ProductVariant[]>([]);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [storedImageUrl, setStoredImageUrl] = useState(PRODUCT_IMAGE_PLACEHOLDER);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageSlots, setImageSlots] = useState<ProductImageSlot[]>([]);
+  const [savedImageUrls, setSavedImageUrls] = useState<string[]>([]);
+  const createdIdRef = useRef<string | null>(null);
 
   const fillForm = (product: Product) => {
     setId(product.id);
@@ -85,9 +95,14 @@ export function AdminProductFormPage() {
         ? product.variants
         : syncVariantsFromOptions(product.variantOptions),
     );
-    setImagePreview(sanitizePersistedImageUrl(product.imageUrl));
-    setStoredImageUrl(sanitizePersistedImageUrl(product.imageUrl));
-    setImageFile(null);
+    const urls = (product.imageUrls?.length ? product.imageUrls : [product.imageUrl])
+      .map((url) => sanitizePersistedImageUrl(url, ""))
+      .filter((url) => url.length > 0);
+    setImageSlots((current) => {
+      revokePendingPreviews(current);
+      return slotsFromUrls(urls);
+    });
+    setSavedImageUrls(urls);
   };
 
   useEffect(() => {
@@ -137,32 +152,42 @@ export function AdminProductFormPage() {
         stockQuantity: hasVariantRows ? undefined : Number(stockQuantity),
         variantOptions,
         variants: hasVariantRows ? variantRows : [],
-        imageUrl: sanitizePersistedImageUrl(
-          imageFile ? storedImageUrl : imagePreview,
-          storedImageUrl,
-        ),
+        imageUrls: imageSlots.flatMap((slot) => (slot.kind === "stored" ? [slot.url] : [])),
       };
 
-      let savedId = id.trim();
-      if (isEdit && productId) {
-        await updateAdminProduct(token, productId, payload);
+      const existingId = (isEdit && productId) || createdIdRef.current;
+      let savedId = existingId || id.trim();
+      if (existingId) {
+        await updateAdminProduct(token, existingId, payload);
       } else {
         if (!savedId) throw new Error(t("admin.products.errors.missingId"));
         const created = await createAdminProduct(token, { id: savedId, ...payload });
         savedId = created.product.id;
+        createdIdRef.current = savedId;
       }
 
-      if (imageFile) {
-        const { base64, mimeType } = await fileToBase64(imageFile);
-        const uploaded = await uploadAdminProductImage(token, savedId, base64, mimeType);
-        if (!uploaded.imageUrl) {
-          throw new Error(t("admin.products.errors.imageUploadFailed"));
+      const pending = imageSlots.filter((slot) => slot.kind === "pending");
+      if (pending.length > 0) {
+        const uploaded = new Map<string, string>();
+        for (const slot of pending) {
+          const { base64, mimeType } = await fileToBase64(slot.file);
+          const result = await uploadAdminProductImage(token, savedId, base64, mimeType);
+          if (!result.imageUrl) {
+            throw new Error(t("admin.products.errors.imageUploadFailed"));
+          }
+          uploaded.set(slot.id, result.imageUrl);
         }
+        const imageUrls = imageSlots.map((slot) =>
+          slot.kind === "stored" ? slot.url : uploaded.get(slot.id) ?? "",
+        );
+        await updateAdminProduct(token, savedId, {
+          imageUrls: imageUrls.filter((url) => url.length > 0),
+        });
       }
 
       navigate("/admin/products");
     } catch (err) {
-      setError(err instanceof Error ? err.message : t("common.error"));
+      setError(productFormError(err, t));
     } finally {
       setSaving(false);
     }
@@ -282,30 +307,12 @@ export function AdminProductFormPage() {
 
         <AdminCard>
           <AdminField label={t("admin.products.image")} htmlFor="image">
-            <AdminInput
-              id="image"
-              type="file"
-              accept="image/png,image/jpeg"
-              className="file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700"
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                setImageFile(file);
-                setImagePreview(
-                  file ? URL.createObjectURL(file) : storedImageUrl,
-                );
-              }}
+            <ProductImagesEditor
+              productId={id.trim()}
+              slots={imageSlots}
+              savedUrls={savedImageUrls}
+              onChange={setImageSlots}
             />
-            {imagePreview ? (
-              <img
-                src={
-                  imagePreview.startsWith("blob:") || imagePreview.startsWith("data:")
-                    ? imagePreview
-                    : resolvePublicProductImageUrl(id, imagePreview)
-                }
-                alt=""
-                className="mt-3 max-w-[160px] rounded-xl border border-gray-200 object-contain"
-              />
-            ) : null}
           </AdminField>
         </AdminCard>
 

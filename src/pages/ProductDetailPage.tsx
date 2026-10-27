@@ -200,10 +200,12 @@ export function ProductDetailPage() {
           <div className="-mx-4 mb-0 sm:-mx-5 lg:col-span-7 lg:mx-0 lg:mb-0">
             <ProductGallery
               productId={product.id}
-              imageUrl={product.imageUrl}
+              imageUrls={product.imageUrls?.length ? product.imageUrls : [product.imageUrl]}
               alt={name}
               zoomLabel={t("productDetail.viewFullImage")}
               closeLabel={t("cart.close")}
+              previousLabel={t("productDetail.previousImage")}
+              nextLabel={t("productDetail.nextImage")}
               frameClass={productDetailImageFrameClass}
             />
           </div>

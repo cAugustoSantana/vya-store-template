@@ -1,8 +1,18 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { sanitizePersistedImageUrl, shouldProxyBlobUrl } from "../../../shared/imageUrl.js";
+import { MAX_PRODUCT_IMAGES, sanitizePersistedImageUrl, shouldProxyBlobUrl } from "../../../shared/imageUrl.js";
 import { fetchBlobImage } from "../../lib/blob.js";
-import { getProductImageUrl } from "../../lib/products.js";
+import { getProductById } from "../../lib/products.js";
 import { methodNotAllowed } from "../../lib/http.js";
+
+function readImageIndex(value: string | string[] | undefined): number | null {
+  if (value === undefined) return 0;
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw === undefined || raw === "") return 0;
+  if (!/^\d+$/.test(raw)) return null;
+  const index = Number(raw);
+  if (index >= MAX_PRODUCT_IMAGES) return null;
+  return index;
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -14,10 +24,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).json({ error: "missing_product_id" });
   }
 
+  const index = readImageIndex(req.query.i);
+  if (index === null) {
+    return res.status(400).json({ error: "invalid_image_index" });
+  }
+
   try {
-    const imageUrl = await getProductImageUrl(id);
-    if (!imageUrl) {
+    const product = await getProductById(id);
+    if (!product) {
       return res.status(404).json({ error: "product_not_found" });
+    }
+
+    const imageUrl = product.imageUrls[index];
+    if (!imageUrl) {
+      return res.status(404).json({ error: "image_not_found" });
     }
 
     const persistedUrl = sanitizePersistedImageUrl(imageUrl, "");

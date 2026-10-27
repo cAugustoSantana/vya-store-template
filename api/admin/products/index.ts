@@ -3,7 +3,7 @@ import { hasDatabase } from "../../lib/db.js";
 import { requireAdmin } from "../../lib/auth.js";
 import { createProduct, listAllProducts } from "../../lib/products.js";
 import { normalizeProductTextInput } from "../../../shared/productText.js";
-import { sanitizePersistedImageUrl } from "../../../shared/imageUrl.js";
+import { readProductImageUrls, sanitizePersistedImageUrl } from "../../../shared/imageUrl.js";
 import { normalizeVariantsInput } from "../../../shared/productVariants.js";
 import { json, methodNotAllowed, readJsonBody } from "../../lib/http.js";
 
@@ -13,6 +13,7 @@ type CreateProductBody = {
   description: string | Record<string, string>;
   price: number;
   imageUrl?: string;
+  imageUrls?: string[];
   variantOptions?: Record<string, unknown>;
   variants?: unknown;
   active?: boolean;
@@ -53,6 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         description,
         price: body.price,
         imageUrl: sanitizePersistedImageUrl(body.imageUrl?.trim()),
+        imageUrls: readProductImageUrls(body.imageUrls),
         variantOptions: body.variantOptions ?? {},
         variants: normalizeVariantsInput(body.variants),
         active: body.active,
@@ -66,6 +68,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   } catch (err) {
     if (err instanceof Error && err.message === "unauthorized") {
       return json(res, 401, { error: "unauthorized" });
+    }
+    if (
+      err instanceof Error &&
+      (err.message === "invalid_images" || err.message === "too_many_images")
+    ) {
+      return json(res, 400, { error: err.message });
     }
     const code = (err as { code?: string })?.code;
     if (code === "23505") {

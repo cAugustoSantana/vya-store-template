@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { hasDatabase } from "../../../lib/db.js";
 import { requireAdmin } from "../../../lib/auth.js";
-import { getProductById, updateProductImageUrl } from "../../../lib/products.js";
+import { getProductById } from "../../../lib/products.js";
 import { uploadProductImage } from "../../../lib/blob.js";
 import { validateProofImage } from "../../../lib/validate.js";
 import { json, methodNotAllowed, readJsonBody } from "../../../lib/http.js";
@@ -42,9 +42,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const buffer = Buffer.from(raw, "base64");
     const contentType = validateProofImage(buffer, body.mimeType);
     const imageUrl = await uploadProductImage({ productId: id, buffer, contentType });
-    const product = await updateProductImageUrl(id, imageUrl);
-
-    return json(res, 200, { product, imageUrl });
+    return json(res, 200, { imageUrl });
   } catch (err) {
     if (err instanceof Error && err.message === "unauthorized") {
       return json(res, 401, { error: "unauthorized" });
