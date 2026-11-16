@@ -45,8 +45,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const raw = body.imageBase64.replace(/^data:[^;]+;base64,/, "");
     const buffer = Buffer.from(raw, "base64");
-    const contentType = validateProofImage(buffer, body.mimeType);
-    const proofUrl = await uploadProofImage({ displayId, buffer, contentType });
+    const image = await validateProofImage(buffer, body.mimeType);
+    const proofUrl = await uploadProofImage({
+      displayId,
+      buffer: image.buffer,
+      contentType: image.contentType,
+    });
     const order = await updateProofMethod(displayId, "upload", proofUrl);
 
     if (order) {

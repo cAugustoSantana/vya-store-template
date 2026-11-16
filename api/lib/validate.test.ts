@@ -1,7 +1,7 @@
 /**
  * @vitest-environment node
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { validateCheckout } from "./validate.js";
 import type { Product } from "../../shared/product.types.js";
 
@@ -230,23 +230,72 @@ describe("validateCheckout", () => {
   });
 });
 
+const { JPEG_BYTES } = vi.hoisted(() => ({
+  JPEG_BYTES: Buffer.from([0xff, 0xd8, 0xff, 0xd9]),
+}));
+
+vi.mock("./heifImage.js", async () => {
+  const actual = await vi.importActual<typeof import("./heifImage.js")>("./heifImage.js");
+  return {
+    ...actual,
+    convertHeifToJpeg: vi.fn(async () => JPEG_BYTES),
+  };
+});
+
+function heicContainer(): Buffer {
+  const buffer = Buffer.alloc(20);
+  buffer.writeUInt32BE(20, 0);
+  buffer.write("ftyp", 4, "latin1");
+  buffer.write("heic", 8, "latin1");
+  buffer.write("mif1", 16, "latin1");
+  return buffer;
+}
+
 describe("validateProofImage", () => {
   it("accepts png magic bytes", async () => {
     const { validateProofImage, PROOF_MAX_BYTES } = await import("./validate.js");
     const buf = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-    expect(validateProofImage(buf)).toBe("image/png");
+    await expect(validateProofImage(buf)).resolves.toEqual({
+      buffer: buf,
+      contentType: "image/png",
+    });
     expect(PROOF_MAX_BYTES).toBeGreaterThan(0);
   });
 
   it("accepts jpeg magic bytes", async () => {
     const { validateProofImage } = await import("./validate.js");
     const buf = Buffer.from([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
-    expect(validateProofImage(buf)).toBe("image/jpeg");
+    await expect(validateProofImage(buf)).resolves.toEqual({
+      buffer: buf,
+      contentType: "image/jpeg",
+    });
+  });
+
+  it("converts HEIC bytes to jpeg, including files labeled as jpeg", async () => {
+    const { validateProofImage } = await import("./validate.js");
+    const buf = heicContainer();
+    await expect(validateProofImage(buf, "image/jpeg")).resolves.toEqual({
+      buffer: JPEG_BYTES,
+      contentType: "image/jpeg",
+    });
+    await expect(validateProofImage(buf, "image/heic")).resolves.toEqual({
+      buffer: JPEG_BYTES,
+      contentType: "image/jpeg",
+    });
+  });
+
+  it("rejects a HEIC file that does not decode", async () => {
+    const { convertHeifToJpeg } = await import("./heifImage.js");
+    vi.mocked(convertHeifToJpeg).mockRejectedValueOnce(new Error("unsupported"));
+    const { validateProofImage } = await import("./validate.js");
+    await expect(validateProofImage(heicContainer(), "image/heic")).rejects.toThrow(
+      "invalid_image_type",
+    );
   });
 
   it("rejects unknown bytes", async () => {
     const { validateProofImage } = await import("./validate.js");
-    expect(() => validateProofImage(Buffer.from("hello"))).toThrow("invalid_image_type");
+    await expect(validateProofImage(Buffer.from("hello"))).rejects.toThrow("invalid_image_type");
   });
 
   it("rejects oversized files", async () => {
@@ -256,6 +305,6 @@ describe("validateProofImage", () => {
     buf[1] = 0x50;
     buf[2] = 0x4e;
     buf[3] = 0x47;
-    expect(() => validateProofImage(buf)).toThrow("file_too_large");
+    await expect(validateProofImage(buf)).rejects.toThrow("file_too_large");
   });
 });

@@ -1,5 +1,6 @@
 import type { Locale } from "../../shared/types.js";
 import { storeConfig } from "../../shared/store.config.js";
+import { convertHeifToJpeg, isHeifImage } from "./heifImage.js";
 import { getStoreConfig } from "./storeSettings.js";
 import { getProductById } from "./products.js";
 import type { Product } from "../../shared/product.types.js";
@@ -191,16 +192,38 @@ export const PROOF_MAX_BYTES = 3 * 1024 * 1024;
 const PNG = [0x89, 0x50, 0x4e, 0x47];
 const JPEG = [0xff, 0xd8, 0xff];
 
-export function validateProofImage(buffer: Buffer, mimeType?: string): "image/png" | "image/jpeg" {
+export type PreparedUploadImage = {
+  buffer: Buffer;
+  contentType: "image/png" | "image/jpeg";
+};
+
+function hasMagic(buffer: Buffer, magic: number[]): boolean {
+  return magic.every((byte, index) => buffer[index] === byte);
+}
+
+export async function validateProofImage(
+  buffer: Buffer,
+  mimeType?: string,
+): Promise<PreparedUploadImage> {
   if (buffer.length > PROOF_MAX_BYTES) {
     throw new Error("file_too_large");
   }
 
-  const isPng = PNG.every((b, i) => buffer[i] === b);
-  const isJpeg = JPEG.every((b, i) => buffer[i] === b);
+  if (hasMagic(buffer, PNG)) return { buffer, contentType: "image/png" };
+  if (hasMagic(buffer, JPEG)) return { buffer, contentType: "image/jpeg" };
 
-  if (isPng) return "image/png";
-  if (isJpeg) return "image/jpeg";
+  // iPhone photos are HEIC. Safari used to transcode them to JPEG in the file
+  // picker; it now often uploads the original container, sometimes as image/jpeg.
+  if (isHeifImage(buffer)) {
+    try {
+      const jpeg = await convertHeifToJpeg(buffer);
+      if (!hasMagic(jpeg, JPEG)) throw new Error("invalid_image_type");
+      return { buffer: jpeg, contentType: "image/jpeg" };
+    } catch (err) {
+      if (err instanceof Error && err.message === "invalid_image_type") throw err;
+      throw new Error("invalid_image_type", { cause: err });
+    }
+  }
 
   if (mimeType === "image/png" || mimeType === "image/jpeg") {
     throw new Error("invalid_image_magic");

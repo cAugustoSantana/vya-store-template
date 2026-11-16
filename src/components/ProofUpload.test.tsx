@@ -40,6 +40,40 @@ describe("ProofUpload", () => {
     expect(onUploaded).toHaveBeenCalled();
   });
 
+  it("uploads a HEIC photo and an iOS file with a blank type", async () => {
+    renderWithProviders(
+      <ProofUpload displayId="MITIENDA-12345" onUploaded={() => {}} />,
+    );
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.upload(
+      input,
+      new File([new Uint8Array([0, 0, 0, 24])], "IMG_0001.HEIC", { type: "image/heic" }),
+    );
+    await waitFor(() => {
+      expect(uploadProof).toHaveBeenCalledWith(
+        "MITIENDA-12345",
+        expect.any(String),
+        "image/heic",
+      );
+    });
+
+    vi.mocked(uploadProof).mockClear();
+    await user.upload(
+      input,
+      new File([new Uint8Array([0xff, 0xd8])], "image.jpg", { type: "" }),
+    );
+    await waitFor(() => {
+      expect(uploadProof).toHaveBeenCalledWith(
+        "MITIENDA-12345",
+        expect.any(String),
+        "",
+      );
+    });
+  });
+
   it("shows hint for disallowed file types", async () => {
     renderWithProviders(
       <ProofUpload displayId="MITIENDA-12345" onUploaded={() => {}} />,

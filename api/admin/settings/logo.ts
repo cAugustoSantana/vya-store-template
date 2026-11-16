@@ -34,8 +34,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const raw = body.imageBase64.replace(/^data:[^;]+;base64,/, "");
     const buffer = Buffer.from(raw, "base64");
-    const contentType = validateProofImage(buffer, body.mimeType);
-    const logoUrl = await uploadStoreLogo({ buffer, contentType });
+    const image = await validateProofImage(buffer, body.mimeType);
+    const logoUrl = await uploadStoreLogo({
+      buffer: image.buffer,
+      contentType: image.contentType,
+    });
 
     const current = await getStoreConfig();
     const settings = await saveStoreSettings({ ...current, logoUrl });

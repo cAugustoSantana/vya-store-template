@@ -28,6 +28,7 @@
     "@vercel/blob": "^2.4.1",
     "@vercel/node": "^5.1.16",
     "@vercel/speed-insights": "^2.0.0",
+    "heic-convert": "^2.1.0",
     "i18next": "^25.2.1",
     "jose": "^6.0.11",
     "react": "^19.1.0",
