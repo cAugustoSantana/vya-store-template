@@ -2,6 +2,7 @@ import { CaretDown, CaretUp } from "@phosphor-icons/react";
 import { useTranslation } from "react-i18next";
 import { MAX_PRODUCT_IMAGES } from "@shared/imageUrl";
 import { resolvePublicProductImageUrl } from "@/lib/imageUrl";
+import { UPLOAD_IMAGE_ACCEPT } from "@/lib/uploadImage";
 import { pendingImageSlot, type ProductImageSlot } from "./productImageSlots";
 
 type Props = {
@@ -38,7 +39,7 @@ export function ProductImagesEditor({ productId, slots, savedUrls, onChange }: P
       <input
         id="image"
         type="file"
-        accept="image/png,image/jpeg"
+        accept={UPLOAD_IMAGE_ACCEPT}
         multiple
         disabled={atLimit}
         className="block w-full text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700 disabled:opacity-60"

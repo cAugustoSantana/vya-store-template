@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useEffect, useState, type FormEvent } from "react";
 import { fetchAdminSettings, updateAdminSettings, uploadAdminStoreLogo } from "@/lib/api";
 import { resolvePublicLogoUrl } from "@/lib/logoUrl";
+import { UPLOAD_IMAGE_ACCEPT } from "@/lib/uploadImage";
 import { AdminPageHeader, AdminSuccess } from "@/components/admin/AdminUi";
 import type { StoreSettingsData } from "@shared/storeSettings.types";
 import type { Locale } from "@shared/types";
@@ -291,7 +292,7 @@ export function AdminSettingsPage() {
             <input
               id="settings-logo"
               type="file"
-              accept="image/png,image/jpeg"
+              accept={UPLOAD_IMAGE_ACCEPT}
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null;
                 setLogoFile(file);

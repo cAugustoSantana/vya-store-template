@@ -40,8 +40,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const raw = body.imageBase64.replace(/^data:[^;]+;base64,/, "");
     const buffer = Buffer.from(raw, "base64");
-    const contentType = validateProofImage(buffer, body.mimeType);
-    const imageUrl = await uploadProductImage({ productId: id, buffer, contentType });
+    const image = await validateProofImage(buffer, body.mimeType);
+    const imageUrl = await uploadProductImage({
+      productId: id,
+      buffer: image.buffer,
+      contentType: image.contentType,
+    });
     return json(res, 200, { imageUrl });
   } catch (err) {
     if (err instanceof Error && err.message === "unauthorized") {

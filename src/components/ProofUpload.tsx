@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { uploadProof } from "@/lib/api";
+import { isAllowedUploadImage, UPLOAD_IMAGE_ACCEPT } from "@/lib/uploadImage";
 import shared from "@/styles/shared.module.css";
 import styles from "./ProofUpload.module.css";
 
@@ -10,7 +11,6 @@ type Props = {
   disabled?: boolean;
 };
 
-const ALLOWED = ["image/png", "image/jpeg"];
 const MAX_BYTES = 3 * 1024 * 1024;
 
 export function ProofUpload({ displayId, onUploaded, disabled }: Props) {
@@ -22,7 +22,7 @@ export function ProofUpload({ displayId, onUploaded, disabled }: Props) {
 
   const handleFile = async (file: File | null) => {
     if (!file || disabled) return;
-    if (!ALLOWED.includes(file.type)) {
+    if (!isAllowedUploadImage(file)) {
       setError(t("payment.uploadHint"));
       return;
     }
@@ -52,7 +52,7 @@ export function ProofUpload({ displayId, onUploaded, disabled }: Props) {
       <input
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg"
+        accept={UPLOAD_IMAGE_ACCEPT}
         capture="environment"
         className={styles.input}
         disabled={disabled || uploading}
